@@ -1,0 +1,49 @@
+# WinForms test-fixture app — built at test time via build:winform-test-app, not committed
+winform-combo/bin/
+winform-combo/obj/
+
+# Java Swing test-fixture app — compiled ad hoc at test time (javac), not committed
+java-swing-form/*.class
+
+# DevExpress grid owner-draw test-fixture app — source is checked in, but build output/obj is
+# not (built at test time via build:devexpress-test-app)
+devexpress-grid-ownerdraw/bin/
+devexpress-grid-ownerdraw/obj/
+
+# Minimal owner-draw test-fixture app — source is checked in, build output/obj is not
+minimal-ownerdraw-winforms/bin/
+minimal-ownerdraw-winforms/obj/
+
+# 32-bit twin of the above — proves the .NET bridge's x86 injection path
+minimal-ownerdraw-x86/bin/
+minimal-ownerdraw-x86/obj/
+
+# OwnerDraw gallery test-fixture app — source is checked in, build output/obj is not
+ownerdraw-gallery/bin/
+ownerdraw-gallery/obj/
+
+# DevExpress-specific elements gallery test-fixture app — source is checked in, build output/obj
+# is not (built at test time via build:devexpress-elements-gallery-test-app)
+devexpress-elements-gallery/bin/
+devexpress-elements-gallery/obj/
+
+# WPF minimal test-fixture app — source is checked in, build output/obj is not (built at test time
+# via build:wpf-minimal-test-app)
+wpf-minimal/bin/
+wpf-minimal/obj/
+
+# WPF DataGrid templated-column test-fixture app — source is checked in, build output/obj is not
+# (built at test time via build:wpf-datagrid-template-test-app)
+wpf-datagrid-template/bin/
+wpf-datagrid-template/obj/
+
+# net8 WinForms minimal test-fixture app (CoreCLR bridge target) — source is checked in, build
+# output/obj is not (built at test time via build:net8-winforms-minimal-test-app)
+net8-winforms-minimal/bin/
+net8-winforms-minimal/obj/
+
+# net8-wpf-minimal — WPF twin used to reproduce/verify the profiler's WPF anchor fix
+net8-wpf-minimal/bin/
+net8-wpf-minimal/obj/
+
+node_modules/
