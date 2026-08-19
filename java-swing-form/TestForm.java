@@ -6,7 +6,7 @@ public class TestForm extends JFrame {
     public TestForm() {
         setTitle("Test Form");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(400, 350);
+        setSize(400, 500);
         setLayout(new GridLayout(0, 2, 10, 10));
 
         add(new JLabel("First Name:"));
@@ -78,6 +78,18 @@ public class TestForm extends JFrame {
             }
         };
         add(brokenField);
+
+        add(new JLabel("Data:"));
+        JTable dataTable = new JTable(
+                new Object[][]{
+                        {"Alice", "Engineering"},
+                        {"Bob", "Finance"},
+                        {"Carol", "Marketing"},
+                },
+                new Object[]{"Name", "Dept"}
+        );
+        dataTable.getAccessibleContext().setAccessibleName("dataTable");
+        add(new JScrollPane(dataTable));
 
         JCheckBox agree = new JCheckBox("I agree");
         agree.getAccessibleContext().setAccessibleName("agreeCheckbox");
