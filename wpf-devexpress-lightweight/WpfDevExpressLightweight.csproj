@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    net8.0-windows / CoreCLR, not net48: the actual customer report's page source showed
+    RuntimeId="dotnetcore:..." (dotnet-bridge-agent-core/Reflector.cs's id prefix per
+    ElementRegistry.Save conventions), meaning his app is CoreCLR-hosted WPF, not .NET Framework.
+    A net48 fixture would go through the old C++/CLI dotnet-bridge-agent/BridgeAgent.cpp path
+    instead (dotnet: prefix), the wrong reflector entirely for this investigation.
+  -->
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>WpfDevExpressLightweight</AssemblyName>
+    <RootNamespace>WpfDevExpressLightweight</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Pinned to whatever DevExpress version is actually installed/licensed on the build
+         machine's local NuGet feed (see nuget source "DevExpress 26.1 Local"), NOT the
+         customer's 24.2. Investigation-only fixture: proves/disproves whether LightweightCellEditor
+         reproduces on an available version before chasing a 24.2-specific install. -->
+    <PackageReference Include="DevExpress.Wpf.Grid" Version="26.1.*-*" />
+  </ItemGroup>
+
+</Project>
