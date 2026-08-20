@@ -46,4 +46,10 @@ net8-winforms-minimal/obj/
 net8-wpf-minimal/bin/
 net8-wpf-minimal/obj/
 
+# wpf-devexpress-lightweight — CoreCLR WPF DevExpress.Xpf.Grid fixture, reproduces
+# LightweightCellEditor's blank-value bug. Source is checked in, build output/obj is not
+# (built at test time via build:devexpress-lightweight-test-app)
+wpf-devexpress-lightweight/bin/
+wpf-devexpress-lightweight/obj/
+
 node_modules/
