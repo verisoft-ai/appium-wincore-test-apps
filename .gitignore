@@ -2,8 +2,9 @@
 winform-combo/bin/
 winform-combo/obj/
 
-# Java Swing test-fixture app — compiled ad hoc at test time (javac), not committed
+# Java Swing test-fixture apps — compiled ad hoc at test time (javac), not committed
 java-swing-form/*.class
+java-swing-table/*.class
 
 # DevExpress grid owner-draw test-fixture app — source is checked in, but build output/obj is
 # not (built at test time via build:devexpress-test-app)
