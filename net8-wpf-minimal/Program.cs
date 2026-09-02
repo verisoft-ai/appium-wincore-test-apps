@@ -75,6 +75,15 @@ internal sealed class MainWindow : Window
     public TextBlock LblClickCount { get; }
     public OwnerDrawListFixture ListFixture { get; }
 
+    // Nested container tree so multi-step XPath (descendant / child axis with an
+    // @Name predicate on an intermediate node) can be exercised through the
+    // .NET bridge — e.g. "//Border[@Name='InfoCard']//TextBlock[@Name='InfoBody']".
+    public Border InfoCard { get; }
+    public StackPanel InfoPanel { get; }
+    public TextBlock InfoTitle { get; }
+    public TextBlock InfoBody { get; }
+    public Button InfoAction { get; }
+
     private int _clickCount;
 
     public MainWindow()
@@ -96,11 +105,31 @@ internal sealed class MainWindow : Window
 
         ListFixture = new OwnerDrawListFixture { Name = "ListFixture", Margin = new Thickness(20, 140, 0, 0), HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
 
+        InfoTitle = new TextBlock { Name = "InfoTitle", Text = "Account" };
+        InfoBody = new TextBlock { Name = "InfoBody", Text = "Active" };
+        InfoAction = new Button { Name = "InfoAction", Content = "Refresh", Width = 80, Height = 24 };
+        InfoPanel = new StackPanel { Name = "InfoPanel", Orientation = Orientation.Vertical };
+        InfoPanel.Children.Add(InfoTitle);
+        InfoPanel.Children.Add(InfoBody);
+        InfoPanel.Children.Add(InfoAction);
+        InfoCard = new Border
+        {
+            Name = "InfoCard",
+            BorderBrush = Brushes.Gray,
+            BorderThickness = new Thickness(1),
+            Padding = new Thickness(6),
+            Margin = new Thickness(20, 220, 0, 0),
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top,
+            Child = InfoPanel,
+        };
+
         var root = new Grid();
         root.Children.Add(TxtInput);
         root.Children.Add(BtnClick);
         root.Children.Add(LblClickCount);
         root.Children.Add(ListFixture);
+        root.Children.Add(InfoCard);
         Content = root;
     }
 }
