@@ -4,6 +4,11 @@ Fixture apps (WinForms, WPF, DevExpress, Java Swing) used by [appium-desktop-dri
 
 Each fixture app proves a specific UI Automation capability — owner-drawn controls invisible to plain UIA, DevExpress custom-drawn cells, CoreCLR bridge targets, x86 injection, etc. Source is checked in; build output (`bin/`, `obj/`) is not.
 
+Two fixtures are not correctness fixtures — they feed the driver's performance benchmark (`test/perf/` there), sized via a flag (default 1500):
+
+- `java-swing-large` (`LargeTreeForm.java`) — large Java Swing accessibility tree. `-DnodeCount=<n>`.
+- `winforms-large` (`WinformsLarge.csproj`) — large WinForms tree. `--nodes <n>`. Measured both via plain UIA and, when attached with `dotnetBridge:true`, via the .NET bridge — the same tree two ways.
+
 ## Prerequisites
 
 - .NET SDK (8.0+ for the `net8-*` fixtures, .NET Framework for the rest)

@@ -12,6 +12,8 @@
     "build:wpf-datagrid-template-test-app": "dotnet publish wpf-datagrid-template/WpfDataGridTemplate.csproj -c Release -o wpf-datagrid-template/bin",
     "build:java-swing-test-app": "javac -d java-swing-form java-swing-form/TestForm.java",
     "build:java-swing-table-test-app": "javac --release 8 -d java-swing-table java-swing-table/TableForm.java",
+    "build:java-swing-large-test-app": "javac --release 8 -d java-swing-large java-swing-large/LargeTreeForm.java",
+    "build:winforms-large-test-app": "dotnet build winforms-large/WinformsLarge.csproj -c Debug -p:Platform=x64",
     "build:devexpress-test-app": "node scripts/build-devexpress-test-app.js",
     "build:devexpress-elements-gallery-test-app": "node scripts/build-devexpress-elements-gallery-test-app.js",
     "build:minimal-ownerdraw-winforms-test-app": "dotnet build minimal-ownerdraw-winforms/MinimalOwnerDraw.csproj -c Debug -p:Platform=x64",
@@ -19,7 +21,7 @@
     "build:ownerdraw-gallery-test-app": "dotnet build ownerdraw-gallery/OwnerDrawGallery.csproj -c Debug -p:Platform=x64",
     "build:devexpress-lightweight-test-app": "node scripts/build-devexpress-lightweight-test-app.js",
     "build:test-apps": "npm run build:winform-test-app && npm run build:wpf-minimal-test-app && npm run build:wpf-datagrid-template-test-app && npm run build:java-swing-test-app && npm run build:java-swing-table-test-app && npm run build:devexpress-test-app",
-    "build:all": "npm run build:winform-test-app && npm run build:wpf-minimal-test-app && npm run build:net8-winforms-minimal-test-app && npm run build:net8-winforms-minimal-x86-test-app && npm run build:net8-wpf-minimal-test-app && npm run build:wpf-datagrid-template-test-app && npm run build:java-swing-test-app && npm run build:java-swing-table-test-app && npm run build:devexpress-test-app && npm run build:devexpress-elements-gallery-test-app && npm run build:minimal-ownerdraw-winforms-test-app && npm run build:minimal-ownerdraw-x86-test-app && npm run build:ownerdraw-gallery-test-app && npm run build:devexpress-lightweight-test-app"
+    "build:all": "npm run build:winform-test-app && npm run build:wpf-minimal-test-app && npm run build:net8-winforms-minimal-test-app && npm run build:net8-winforms-minimal-x86-test-app && npm run build:net8-wpf-minimal-test-app && npm run build:wpf-datagrid-template-test-app && npm run build:java-swing-test-app && npm run build:java-swing-table-test-app && npm run build:java-swing-large-test-app && npm run build:winforms-large-test-app && npm run build:devexpress-test-app && npm run build:devexpress-elements-gallery-test-app && npm run build:minimal-ownerdraw-winforms-test-app && npm run build:minimal-ownerdraw-x86-test-app && npm run build:ownerdraw-gallery-test-app && npm run build:devexpress-lightweight-test-app"
   },
   "author": "Automate The Planet",
   "license": "Apache-2.0",

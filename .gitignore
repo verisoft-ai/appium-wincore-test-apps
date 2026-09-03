@@ -54,3 +54,10 @@ wpf-devexpress-lightweight/bin/
 wpf-devexpress-lightweight/obj/
 
 node_modules/
+
+# java-swing-large perf fixture — .class compiled ad hoc at test time, not committed
+java-swing-large/*.class
+
+# winforms-large perf fixture — source checked in, build output/obj is not
+winforms-large/bin/
+winforms-large/obj/
