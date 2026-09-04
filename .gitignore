@@ -61,3 +61,7 @@ java-swing-large/*.class
 # winforms-large perf fixture — source checked in, build output/obj is not
 winforms-large/bin/
 winforms-large/obj/
+
+# wpf-large perf fixture (native-UIA twin) — source checked in, build output/obj is not
+wpf-large/bin/
+wpf-large/obj/

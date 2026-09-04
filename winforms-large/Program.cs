@@ -7,11 +7,12 @@ using System.Windows.Forms;
 namespace WinformsLarge;
 
 /// <summary>
-/// Performance fixture: a deliberately large WinForms UI tree. Used by
-/// appium-desktop-driver's perf benchmark to measure the plain-UIA tree walk
-/// (getPageSource / XPath materialisation) and, when attached with
-/// <c>dotnetBridge:true</c>, the .NET bridge's reflected-tree walk — the same tree
-/// two ways, so the two costs are directly comparable.
+/// Performance fixture: a deliberately large WinForms UI tree. Feeds
+/// appium-desktop-driver's <c>dotnet-bridge</c> perf suite — attached with
+/// <c>dotnetBridge:true</c> and walked via the bridge's reflected tree. The plain-UIA
+/// (<c>uia</c>) suite uses the <c>wpf-large</c> fixture instead: WinForms has no native
+/// UIA provider, so walking it over UIA measures the MSAA-&gt;UIA bridge, not the
+/// protocol itself. One fixture per suite.
 ///
 /// Not a correctness fixture. Size scales with <c>--nodes &lt;n&gt;</c> (default 1500).
 ///

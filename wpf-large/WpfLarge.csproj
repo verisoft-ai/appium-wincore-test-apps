@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Native-UIA performance fixture: a deliberately large WPF UI tree. WPF ships a
+    first-class UI Automation provider (AutomationPeer), so this measures plain UIA
+    tree-walk cost WITHOUT the MSAA->UIA bridge tax that WinForms pays. The winforms-large
+    twin is kept only for the .NET-bridge suite now; each fixture feeds exactly one suite.
+
+    Same target framework as winforms-large (net472) so the only variable between the two
+    is the UI framework / provider, not the runtime.
+  -->
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net472</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Platforms>x64</Platforms>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>WpfLarge</AssemblyName>
+    <RootNamespace>WpfLarge</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>
