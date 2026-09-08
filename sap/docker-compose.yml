@@ -30,12 +30,17 @@ services:
     # ASE + ABAP fit in ~6 GB; cap well under the host's 15.7 GB so Windows + WSL2
     # don't thrash.
     mem_limit: 10g
-    shm_size: 2g
-    # ASE + the SAP installer need a high vm.max_map_count. On this kernel it is NOT
-    # namespaced, so it can't be set per-container — set it on the WSL2 host once:
-    #   wsl -d docker-desktop sysctl -w vm.max_map_count=2000000
-    # (sap/build/build.sh and the README do this.) Not persistent across a full
-    # Docker Desktop / WSL restart — re-run if the install or ASE start complains.
+    shm_size: 4g
+    # ASE 16.0 SP03's dataserver SIGSEGVs in dsinit under the default Docker seccomp
+    # profile on a modern (6.x) kernel. Privileged mode (drops seccomp + grants the
+    # caps ASE's memory/timer setup needs) fixes it. This is a throwaway dev DB, so
+    # the trade-off is fine; if your policy forbids privileged, the narrower fix is
+    #   security_opt: ["seccomp:unconfined"]
+    #   cap_add: [SYS_RESOURCE, SYS_NICE, IPC_LOCK, SYS_PTRACE]
+    privileged: true
+    # vm.max_map_count isn't namespaced on the Docker Desktop kernel — set on the WSL2
+    # host (build.sh / README step 4):
+    #   wsl -d docker-desktop sysctl -w vm.max_map_count=2000000 kernel.randomize_va_space=0
     ulimits:
       nofile:
         soft: 65536
