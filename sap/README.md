@@ -48,16 +48,21 @@ Extracts the archives to `sap/build/sapdownloads/` (~14 GB), places the ASE lice
 the installer expects it, and builds `nwabap:7.52` (~330 MB — the payload is **not** baked
 in, it's bind-mounted at run time).
 
-### 4. Raise vm.max_map_count on the WSL host
+### 4. WSL-host kernel settings
 
-ASE and the installer need it. On this kernel it isn't per-container settable:
+ASE 16.0 SP03 and SP04's sapinst need these, and neither is per-container settable on the
+Docker Desktop kernel (`build.sh` runs them; here for reference / after a WSL restart):
 
 ```bash
-wsl -d docker-desktop sysctl -w vm.max_map_count=2000000
+wsl -d docker-desktop sysctl -w vm.max_map_count=2000000 kernel.randomize_va_space=0
 ```
 
-Not persistent across a full Docker Desktop / WSL restart — re-run if ASE or the install
-complains about `max_map_count` / `Read-only file system`.
+- `vm.max_map_count` — ASE / sapinst won't start below ~1e6
+- `kernel.randomize_va_space=0` — without it ASE's `dataserver` **SIGSEGVs in
+  `Snap::Validate` / `dsinit`** on modern kernels; sapinst then hangs forever on
+  "The internal timer is not progressing"
+
+Not persistent across a full Docker Desktop / WSL restart — re-run then.
 
 ### 5. Install
 
@@ -179,3 +184,5 @@ driver's `test/fixtures/sap/`.
 | "scripting is disabled" | server: step 8; client: step 8 checkbox; fully restart SAP GUI |
 | `docker` 500s / hangs after a big pull | Docker Desktop → quit → `wsl --shutdown` → reopen |
 | out of disk mid-install | needs ~40 GB free on `C:` during install; the WSL vhdx grows into it |
+| sapinst failed but extraction was fine | don't re-run the whole thing — the DB/kernel tarballs are already in the volumes. `docker compose exec -T abap ./install.sh -t isr -s -k` redoes just install+setup+run (sapinst resumes from `/tmp/sapinst_instdir` if the container wasn't recreated) |
+| ASE `dataserver` SIGSEGV in `Snap::Validate` / hang on "internal timer is not progressing" | ASLR — step 4's `kernel.randomize_va_space=0`, then resume with `-t isr -s -k` |

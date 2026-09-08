@@ -82,13 +82,15 @@ docker build -t "$image" "$here" \
   ${http_proxy:+--build-arg http_proxy=$http_proxy} \
   ${https_proxy:+--build-arg https_proxy=$https_proxy}
 
-# ASE + the installer need a high vm.max_map_count. Not per-container settable on the
-# Docker Desktop kernel — set it on the WSL host now (non-fatal if wsl isn't present,
-# e.g. Linux host).
+# Host-kernel settings the SP04 installer + ASE 16.0 need (not per-container settable on
+# the Docker Desktop kernel). Non-fatal if wsl isn't present (native Linux host).
+#   vm.max_map_count       — ASE / sapinst refuse to start below ~1e6
+#   kernel.randomize_va_space=0 — ASE 16.0 SP03's dataserver SIGSEGVs in Snap::Validate
+#                                 (dsinit) with ASLR on modern kernels
 if command -v wsl >/dev/null 2>&1; then
-  echo "Setting vm.max_map_count on the docker-desktop WSL host …"
-  wsl -d docker-desktop sysctl -w vm.max_map_count=2000000 || \
-    echo "  (could not set it — do it manually before install, see README step 4)"
+  echo "Applying WSL-host kernel settings for ASE / sapinst …"
+  wsl -d docker-desktop sysctl -w vm.max_map_count=2000000 kernel.randomize_va_space=0 || \
+    echo "  (could not set them — do it manually before install, see README step 4)"
 fi
 
 echo
