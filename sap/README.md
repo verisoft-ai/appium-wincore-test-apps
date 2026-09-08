@@ -48,21 +48,45 @@ Extracts the archives to `sap/build/sapdownloads/` (~14 GB), places the ASE lice
 the installer expects it, and builds `nwabap:7.52` (~330 MB — the payload is **not** baked
 in, it's bind-mounted at run time).
 
-### 4. WSL-host kernel settings
+### 4. Downgrade the WSL2 kernel to 5.15
 
-ASE 16.0 SP03 and SP04's sapinst need these, and neither is per-container settable on the
-Docker Desktop kernel (`build.sh` runs them; here for reference / after a WSL restart):
+**ASE 16.0 SP03 (built 2018 for SLES 11) SIGSEGVs in `dsinit` / `Snap::Validate` on the
+stock WSL2 6.x kernel** — no combination of seccomp/caps/ASLR/sysctls fixes it. It runs
+on 5.15 (what the community images used).
+
+Build the kernel once (needs Docker + ~2 GB disk, ~15 min):
+
+```bash
+docker run -d --name kbuild debian:12 sleep infinity
+docker exec kbuild bash -c 'apt-get update -qq && apt-get install -y -qq build-essential flex bison bc libssl-dev libelf-dev dwarves cpio python3 git'
+docker exec kbuild bash -lc '
+  cd /root && git clone --depth 1 -b linux-msft-wsl-5.15.167.4 https://github.com/microsoft/WSL2-Linux-Kernel.git k
+  cd k && cp Microsoft/config-wsl .config && make olddefconfig && make -j$(nproc) bzImage'
+mkdir -p ~/wsl-kernel   # a Windows path, e.g. C:\Users\<you>\wsl-kernel
+docker cp kbuild:/root/k/arch/x86/boot/bzImage "C:\Users\<you>\wsl-kernel\bzImage-5.15.167.4"
+docker rm -f kbuild
+```
+
+Add to `C:\Users\<you>\.wslconfig`:
+
+```
+kernel=C:\\Users\\<you>\\wsl-kernel\\bzImage-5.15.167.4
+```
+
+Then `wsl --shutdown` and restart Docker Desktop. Verify: `docker run --rm alpine uname -r`
+→ `5.15.167.4-microsoft-standard-WSL2+`. (`docker info | grep Kernel` too.)
+
+> If Docker Desktop then errors on `dockerInference` / "Inference manager": that's the
+> Model Runner feature choking on a stale socket — set `"EnableDockerAI": false` in
+> `%APPDATA%\Docker\settings-store.json`. The engine usually comes up regardless.
+
+### 4b. WSL-host sysctls
+
+Also needed, and reset on every `wsl --shutdown` (`build.sh` sets them):
 
 ```bash
 wsl -d docker-desktop sysctl -w vm.max_map_count=2000000 kernel.randomize_va_space=0
 ```
-
-- `vm.max_map_count` — ASE / sapinst won't start below ~1e6
-- `kernel.randomize_va_space=0` — without it ASE's `dataserver` **SIGSEGVs in
-  `Snap::Validate` / `dsinit`** on modern kernels; sapinst then hangs forever on
-  "The internal timer is not progressing"
-
-Not persistent across a full Docker Desktop / WSL restart — re-run then.
 
 ### 5. Install
 
