@@ -1,0 +1,21 @@
+#!/usr/bin/expect -f
+# Unattended run of the SAP NW ABAP 7.52 Developer Edition installer.
+# Answers the distro-not-tested prompt, accepts the licence, and sets the master
+# password to "Down1oad" (SAP's documented default for this trial).
+#
+# Adapted from github.com/nzamani/sap-nw-abap-trial-docker (originally autoexpect'd).
+# If a future SP changes the installer prompts, run ./install.sh by hand once and
+# update the expect/send pairs below.
+
+set timeout -1
+set password "Down1oad"
+
+spawn ./install.sh
+
+expect {
+    -re "distribution .* was not tested. Do you want to continue\\?" { send -- "yes\r"; exp_continue }
+    "Do you agree to the above license terms? yes/no:"               { send -- "yes\r"; exp_continue }
+    "Please enter a password:"                                       { send -- "$password\r"; exp_continue }
+    "Please re-enter password for verification:"                     { send -- "$password\r"; exp_continue }
+    eof
+}
