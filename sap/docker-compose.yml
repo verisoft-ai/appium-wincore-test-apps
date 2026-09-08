@@ -1,58 +1,62 @@
-# Local SAP NetWeaver AS ABAP 7.52 (SP01/SP04) Developer Edition — for testing the
-# driver's SAP GUI Scripting subsystem (csharp/DesktopDriverServer/Sap/).
+# Local SAP NetWeaver AS ABAP 7.52 SP04 Developer Edition (SID NPL, SAP ASE) —
+# target for the driver's SAP GUI Scripting subsystem (csharp/DesktopDriverServer/Sap/).
 #
-# This is the light, ASE-based ABAP trial (SID NPL) — ~6 GB RAM, ~80 GB disk — as
-# opposed to the HANA-based `sapse/abap-cloud-developer-trial` which needs 24 GB RAM.
+# Light, ASE-based — ~6 GB RAM. The HANA-based sapse/abap-cloud-developer-trial needs 24 GB.
 #
-# Two ways to get an image (set SAP_ABAP_IMAGE in sap/.env):
-#   1. Community prebuilt (fast, no SAP login):  yoraco/sap-dev-edition-7.52-sp04
-#      → still requires running ./install.sh once inside the container.
-#   2. Build your own from official archives:    see sap/README.md "Build route"
-#      → docker build -t nwabap:7.52 .  then set SAP_ABAP_IMAGE=nwabap:7.52
-#
-# First-time setup, licensing, and the client/server scripting switches are all in
-# sap/README.md. After the one-time install this file is all you need:
+# Setup once (see sap/README.md for licensing + scripting switches):
+#   bash sap/build/build.sh                                             # extract + build base image
 #   docker compose -f sap/docker-compose.yml up -d
-#   docker compose -f sap/docker-compose.yml exec abap /sap/start.sh   # start SAP
+#   docker compose -f sap/docker-compose.yml exec abap ./install.exp    # 20-40 min, installs into the volumes
+#   # then you may `rm -rf sap/build/sapdownloads/*` to reclaim ~35 GB
+#
+# Day to day:
+#   docker compose -f sap/docker-compose.yml up -d
+#   docker compose -f sap/docker-compose.yml exec abap /sap/start.sh
+#   docker compose -f sap/docker-compose.yml exec abap /sap/stop.sh
+#   docker compose -f sap/docker-compose.yml stop
 #
 services:
   abap:
-    image: ${SAP_ABAP_IMAGE:-yoraco/sap-dev-edition-7.52-sp04}
+    image: ${SAP_ABAP_IMAGE:-nwabap:7.52}
     container_name: nwabap752
-    # Hostname MUST be vhcalnplci — the ABAP/ASE install is bound to it and will
-    # not start under any other name.
+    # Hostname MUST be vhcalnplci — the ABAP/ASE install binds to it and will not
+    # start under any other name.
     hostname: vhcalnplci
-    # SAP GUI dispatcher (3200), gateway (3300), ICM http/https (8000/44300).
     ports:
-      - "3200:3200"
-      - "3300:3300"
-      - "8000:8000"
-      - "44300:44300"
-    # ASE + ABAP fit in ~6 GB; give it headroom but stay well under the host's 15.7 GB
-    # so Windows + WSL2 don't thrash.
+      - "3200:3200"     # SAP GUI dispatcher
+      - "3300:3300"     # gateway (ADT / RFC)
+      - "8000:8000"     # ICM http
+      - "44300:44300"   # ICM https
+    # ASE + ABAP fit in ~6 GB; cap well under the host's 15.7 GB so Windows + WSL2
+    # don't thrash.
     mem_limit: 10g
     shm_size: 2g
-    # ASE needs a high mmap count or it fails to start.
-    sysctls:
-      vm.max_map_count: "2000000"
+    # ASE + the SAP installer need a high vm.max_map_count. On this kernel it is NOT
+    # namespaced, so it can't be set per-container — set it on the WSL2 host once:
+    #   wsl -d docker-desktop sysctl -w vm.max_map_count=2000000
+    # (sap/build/build.sh and the README do this.) Not persistent across a full
+    # Docker Desktop / WSL restart — re-run if the install or ASE start complains.
     ulimits:
       nofile:
         soft: 65536
         hard: 65536
     stop_grace_period: 20m
-    # Keep the container alive; SAP itself is started/stopped via sap/start.sh /
-    # sap/stop.sh (or the install script on first run). An empty `tail` is the
-    # simplest "stay up" entrypoint that survives `docker compose up -d`.
     stdin_open: true
     tty: true
+    working_dir: /tmp/sapdownloads
     command: ["tail", "-f", "/dev/null"]
     volumes:
-      # Persist the SAP + ASE data across container recreation. First install
-      # populates these; later `up` reuses them.
+      # Installed SAP + ASE — persisted across container recreation. The one-time
+      # install populates these; later `up` reuses them.
       - abap_sapmnt:/sapmnt
       - abap_usrsap:/usr/sap
       - abap_sybase:/sybase
-      # Helper scripts (start.sh / stop.sh / enable-scripting.sh).
+      # Install payload (extracted archives) + the unattended-install wrapper.
+      # Consumed once by ./install.exp; after that you can empty
+      # sap/build/sapdownloads/ and this mount becomes a harmless empty dir.
+      - ./build/sapdownloads:/tmp/sapdownloads
+      - ./build/install.exp:/tmp/sapdownloads/install.exp:ro
+      # Helper scripts.
       - ./scripts:/sap:ro
 
 volumes:

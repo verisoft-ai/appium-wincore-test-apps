@@ -1,2 +1,1 @@
-Put the extracted SAP install payload here (build.sh does this).
-Must contain install.sh at the top level.
+keep this dir; extracted payload is gitignored

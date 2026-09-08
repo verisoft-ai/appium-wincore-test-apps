@@ -6,8 +6,9 @@
 #   2. Drop every part into  sap/build/archives/  (keep them as .rar, do NOT extract)
 #   3. Run this script.
 #
-# It extracts the archives into sap/build/sapdownloads/ (which must end up containing
-# install.sh) and runs `docker build`.
+# It extracts the archives into sap/build/sapdownloads/ (must end up containing
+# install.sh) and builds the ~500 MB base image. The payload is bind-mounted at
+# run time, not baked into the image — see docker-compose.yml.
 #
 # Needs 7-Zip or unrar. On Windows:  winget install --id 7zip.7zip -e
 set -euo pipefail
@@ -73,14 +74,26 @@ if [ ! -f "$payload/install.sh" ]; then
   [ -n "$nested" ] && { echo "Flattening from $(dirname "$nested")"; mv "$(dirname "$nested")"/* "$payload/"; }
 fi
 [ -f "$payload/install.sh" ] || { echo "install.sh not found in $payload after extraction — inspect its contents"; exit 1; }
-echo "Payload OK: $(ls "$payload" | tr '\n' ' ')"
+chmod +x "$payload"/*.sh 2>/dev/null || true
+echo "Payload OK ($(du -sh "$payload" | cut -f1)): $(ls "$payload" | tr '\n' ' ')"
 
-echo "Building $image  (Docker context: $here — no .rar sent, see .dockerignore) …"
+echo "Building base image $image (~500 MB — payload is mounted at run time, not baked in) …"
 docker build -t "$image" "$here" \
   ${http_proxy:+--build-arg http_proxy=$http_proxy} \
   ${https_proxy:+--build-arg https_proxy=$https_proxy}
 
+# ASE + the installer need a high vm.max_map_count. Not per-container settable on the
+# Docker Desktop kernel — set it on the WSL host now (non-fatal if wsl isn't present,
+# e.g. Linux host).
+if command -v wsl >/dev/null 2>&1; then
+  echo "Setting vm.max_map_count on the docker-desktop WSL host …"
+  wsl -d docker-desktop sysctl -w vm.max_map_count=2000000 || \
+    echo "  (could not set it — do it manually before install, see README step 4)"
+fi
+
 echo
-echo "Done. Ensure sap/.env has SAP_ABAP_IMAGE=$image, then:"
+echo "Done. Then:"
+echo "  cp sap/.env.example sap/.env        # SAP_ABAP_IMAGE=$image"
 echo "  docker compose -f sap/docker-compose.yml up -d"
-echo "  docker compose -f sap/docker-compose.yml exec abap ./install.exp"
+echo "  docker compose -f sap/docker-compose.yml exec -T abap ./install.exp    # 20-40 min"
+echo "  # after 'Installation of NPL successful':  rm -rf sap/build/sapdownloads/*  (frees ~14 GB)"

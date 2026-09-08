@@ -1,8 +1,9 @@
-# SAP NetWeaver AS ABAP 7.52 Developer Edition (SID NPL, SAP ASE) → Docker image.
+# Base image for SAP NetWeaver AS ABAP 7.52 Developer Edition (SID NPL, SAP ASE).
 #
-# Build context must contain a `sapdownloads/` folder with the *extracted* contents
-# of the SAP archives (so that `sapdownloads/install.sh` exists). See sap/build/build.sh
-# and sap/README.md "Route B".
+# The multi-GB SAP install payload is NOT baked in — docker-compose.yml bind-mounts
+# it at /tmp/sapdownloads and ./install.exp consumes it once on first run, installing
+# into the /sybase, /usr/sap and /sapmnt volumes. Keeps this image ~500 MB and lets
+# you delete sap/build/sapdownloads/ after the install succeeds.
 #
 # Based on the community Dockerfiles by Gregor Wolf, Tobias Hofmann and Nabi Zamani
 # (github.com/nzamani/sap-nw-abap-trial-docker) — trimmed and pinned.
@@ -20,17 +21,8 @@ RUN zypper --non-interactive install --replacefiles \
 # uuidd must exist and have run once before the ABAP dispatcher will start.
 RUN mkdir -p /run/uuidd && chown uuidd /run/uuidd && /usr/sbin/uuidd || true
 
-# Unattended-install expect wrapper, then the extracted SAP payload.
-COPY install.exp /tmp/sapdownloads/
-COPY sapdownloads /tmp/sapdownloads/
-
-WORKDIR /tmp/sapdownloads
-RUN chmod +x install.sh install.exp
-
 # HTTP / HTTPS(ICM) / gateway (ADT) / SAP GUI dispatcher
 EXPOSE 8000 44300 3300 3200
 
-# The install writes to /proc (vm.max_map_count) and needs an interactive-ish TTY,
-# so it cannot run at build time. Run it once after first `up`:
-#   docker compose -f sap/docker-compose.yml exec abap ./install.exp
+# Container just needs to stay up; SAP is installed/started via `compose exec`.
 CMD ["tail", "-f", "/dev/null"]
