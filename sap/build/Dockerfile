@@ -1,32 +1,28 @@
 # Base image for SAP NetWeaver AS ABAP 7.52 SP04 Developer Edition (SID NPL, SAP ASE).
 #
-# openSUSE Leap 15.3: SP04's SWPM/sapinst (2018) and ASE 16.0 do NOT work on Leap 15.5+
-#   - sapinst can't parse a 15.6 os-release ("Linux distribution could not be detected")
-#   - ASE's `dataserver` fails its version probe on newer glibc, so sapinst asserts
-#     "does not support the database server version 15.7.0.000"
-# 15.3 is the newest Leap the community images run this on. Its repos are archived but
-# still resolvable.
+# oraclelinux:7 → glibc 2.17. The ASE 16.0 SP03 dataserver was built for SLES 11
+# (glibc 2.11) and runs trampolines on its engine-thread stacks. glibc 2.31+ (Leap
+# 15.4+, Debian 12, …) makes pthread stacks non-executable regardless of PT_GNU_STACK,
+# so the dataserver SIGSEGVs in dsinit / Snap::Validate with a W^X instruction-fetch
+# fault (siginfo err 0x15). glibc 2.17 still gives thread stacks the main binary's
+# PT_GNU_STACK executability, so it runs. Oracle Linux 7 repos are still maintained.
 #
 # The multi-GB SAP install payload is NOT baked in — docker-compose.yml bind-mounts it
 # at /tmp/sapdownloads and ./install.exp consumes it once on first run, installing into
-# the /sybase, /usr/sap and /sapmnt volumes. Keeps this image small and lets you delete
-# sap/build/sapdownloads/ after the install succeeds.
+# the /sybase, /usr/sap and /sapmnt volumes.
 #
-# Based on the community Dockerfiles by Gregor Wolf, Tobias Hofmann and Nabi Zamani
-# (github.com/nzamani/sap-nw-abap-trial-docker).
+# Based on the community Dockerfiles by Gregor Wolf, Tobias Hofmann and Nabi Zamani.
 
-FROM opensuse/leap:15.3
+FROM oraclelinux:7
 
 ENV LANG=en_US.UTF-8
 
-# Packages SWPM/sapinst + ASE + the ABAP runtime need. 15.3 still ships libnsl.so.1 in
-# the base, so no libnsl1 package here (unlike 15.6). The image's default repos still
-# resolve as of 2026-09.
-RUN zypper --non-interactive --gpg-auto-import-keys refresh \
- && zypper --non-interactive install --replacefiles --no-recommends \
-      which hostname expect net-tools iputils wget vim iproute2 unrar less \
-      tar gzip uuidd tcsh libaio1 libltdl7 insserv-compat glibc-locale \
- && zypper clean --all
+# SWPM/sapinst + ASE + the ABAP runtime deps.
+RUN yum -y -q install \
+      expect tcsh libaio glibc-common which hostname uuidd \
+      iproute net-tools iputils wget vim less tar gzip util-linux \
+ && yum clean all && rm -rf /var/cache/yum \
+ && test -x /usr/sbin/uuidd   # install.sh expects /sbin/uuidd; /sbin -> /usr/sbin on OL7
 
 RUN mkdir -p /run/uuidd && chown uuidd /run/uuidd && /usr/sbin/uuidd || true
 

@@ -23,6 +23,7 @@ spawn ./install.sh
 
 expect {
     -re "was not tested. Do you want to continue"        { send -- "yes\r"; exp_continue }
+    -re "continue regardless of the missing dependencies" { send -- "yes\r"; exp_continue }
     -re "Do you agree to the above license terms"        { send -- "yes\r"; exp_continue }
     -re "Please enter a password"                        { send -- "$password\r"; exp_continue }
     -re "re-enter password for verification"             { send -- "$password\r"; exp_continue }

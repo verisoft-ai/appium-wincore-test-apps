@@ -9,6 +9,24 @@ Light, **ASE-based — ~6 GB RAM, ~40 GB disk after install**. Not the HANA-base
 `sapse/abap-cloud-developer-trial` (24 GB RAM). SAP withdraws this download on
 **30 September 2026**; it is free for personal, non-productive use.
 
+> ## ⚠️ Does not work on Docker Desktop / WSL2
+>
+> SAP ASE 16.0 SP03's `dataserver` (2018, built for SLES 11) **SIGSEGVs in `dsinit` /
+> `Snap::Validate` during engine start** — a W^X instruction-fetch fault (`siginfo err
+> 0x15`) trying to run trampoline code on a thread stack. Confirmed unfixed across:
+> openSUSE Leap 15.6 / 15.3, Debian 12, **Oracle Linux 7 (glibc 2.17)**; WSL2 kernel
+> 6.6 **and a hand-built 5.15**; `privileged`, `seccomp:unconfined`, `shm 4g`,
+> `randomize_va_space=0`, `transparent_hugepage=never`, `execstack -s`,
+> `setarch -X -R`. The WSL2 lightweight-VM layer itself appears to be the problem.
+>
+> **Run this in a real VM instead** — VirtualBox / Hyper-V / a cloud instance with a
+> stock **Ubuntu 20.04** (or SLES/OL 7/8). The 2019–2022 community images ran the same
+> trial on plain VMs. The `build/` Dockerfile + `install.exp` + `scripts/` still apply
+> inside such a VM (drop the Docker layer, run `install.sh` on the host); the tree
+> below documents everything learned. Or borrow a non-prod SAP login and skip the
+> backend entirely — the driver subsystem (`csharp/DesktopDriverServer/Sap/`) only
+> needs one live SAP session to validate against.
+
 ---
 
 ## One-time setup
