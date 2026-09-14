@@ -29,6 +29,11 @@ services:
       # with "not in a separate kernel namespace", drop the offending line and set it
       # on the host: wsl -d docker-desktop sysctl -w <key>=<val>
       net.ipv4.ip_local_port_range: "40000 60999"
+      # kernel.shmmni IS IPC-namespaced (unlike vm.max_map_count / fs.file-max /
+      # fs.aio-max-nr, which are host-wide and must be set via `wsl sysctl` on the
+      # Docker Desktop VM instead) — it resets per-container, so it has to be set
+      # here, not on the host.
+      kernel.shmmni: 32768
     ulimits:
       nofile: { soft: 1048576, hard: 1048576 }
       nproc: 65536
