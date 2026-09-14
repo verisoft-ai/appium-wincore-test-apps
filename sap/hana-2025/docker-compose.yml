@@ -1,0 +1,53 @@
+# SAP ABAP Cloud Developer Trial 2025 (SID A4H, HANA) — SAP's current, WSL2-tested
+# image. Unlike the ASE-based 7.52 SP04 trial in ../build/, HANA runs fine under
+# Docker Desktop / WSL2.
+#
+# Target host: 32 GB RAM VM — clears SAP's 24 GB recommendation, so the real
+# preflight check runs instead of being skipped.
+#
+# First run — the container self-installs (10-20 min), no separate installer:
+#   docker compose -f sap/hana-2025/docker-compose.yml up -d
+#   docker compose -f sap/hana-2025/docker-compose.yml logs -f abap   # watch for "Instance ... Running"
+#
+# Then: hosts entry `127.0.0.1 vhcala4hci`, SAP GUI -> app server vhcala4hci,
+# instance 00, SID A4H, client 001, user DEVELOPER (pw on the image's Docker Hub
+# page, currently ABAPtr2025#SP00). RZ11 sapgui/user_scripting = TRUE.
+#
+services:
+  abap:
+    image: sapse/abap-cloud-developer-trial:2025
+    container_name: a4h
+    hostname: vhcala4hci        # MUST be this
+    # -agree-to-sap-license: skip the licence prompt. Limits check left ENABLED —
+    # host meets SAP's 24 GB / 100 GB recommendation, so let it verify that itself.
+    command: ["-agree-to-sap-license"]
+    stop_grace_period: 1h      # HANA needs a clean shutdown
+    stdin_open: true
+    tty: true
+    sysctls:
+      # HANA wants these; on the WSL2 kernel some aren't namespaced — if `up` fails
+      # with "not in a separate kernel namespace", drop the offending line and set it
+      # on the host: wsl -d docker-desktop sysctl -w <key>=<val>
+      net.ipv4.ip_local_port_range: "40000 60999"
+    ulimits:
+      nofile: { soft: 1048576, hard: 1048576 }
+      nproc: 65536
+    ports:
+      - "3200:3200"      # SAP GUI dispatcher
+      - "3300:3300"      # gateway
+      - "8443:8443"      # Fiori https
+      - "44300:44300"
+      - "30213:30213"    # HANA SQL
+      - "50000:50000"
+      - "50001:50001"
+    volumes:
+      - a4h_sapdata:/hana/data
+      - a4h_salog:/hana/log
+      - a4h_usrsap:/usr/sap
+      - a4h_sapmnt:/sapmnt
+
+volumes:
+  a4h_sapdata:
+  a4h_salog:
+  a4h_usrsap:
+  a4h_sapmnt:
