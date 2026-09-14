@@ -1,0 +1,36 @@
+#!/usr/bin/expect -f
+# Unattended run of the SAP NW ABAP 7.52 SP04 Developer Edition installer.
+#
+# install.sh (SP04) flow: distro-not-tested prompt -> displays the SAP COMMUNITY
+# DEVELOPER License via $PAGER -> "Do you agree ...? yes/no:" -> asks for a master
+# password twice. We force PAGER=cat so the licence dumps instead of paging, and
+# answer every prompt. Master password = "Down1oad" (SAP's documented default).
+#
+# If a future SP changes the prompts, run ./install.sh by hand once and update the
+# expect/send pairs.
+
+set timeout -1
+set password "Down1oad"
+
+# install.sh lives on a bind mount; make sure it's executable.
+catch {exec chmod +x ./install.sh}
+
+# PAGER=cat: show_license() does `cat LICENSE | $PAGER` — with `more` (the default)
+# it would page and wait for input under expect's pty.
+set env(PAGER) "cat"
+
+spawn ./install.sh
+
+expect {
+    -re "was not tested. Do you want to continue"        { send -- "yes\r"; exp_continue }
+    -re "continue regardless of the missing dependencies" { send -- "yes\r"; exp_continue }
+    -re "Do you agree to the above license terms"        { send -- "yes\r"; exp_continue }
+    -re "Please enter a password"                        { send -- "$password\r"; exp_continue }
+    -re "re-enter password for verification"             { send -- "$password\r"; exp_continue }
+    -re "passwords do not match"                         { send -- "$password\r"; exp_continue }
+    -re "\[Mm\]ore.*--|--More--"                          { send -- " ";        exp_continue }
+    eof
+}
+
+catch {wait} result
+puts "install.sh exit: $result"

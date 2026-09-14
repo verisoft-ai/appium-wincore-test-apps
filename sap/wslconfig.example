@@ -1,0 +1,7 @@
+# Copy to C:\Users\<you>\.wslconfig  (host home dir, NOT the repo), then `wsl --shutdown`.
+# 11 GB to WSL2 leaves ~5 GB for Windows on a 16 GB machine. The container itself is
+# capped lower via mem_limit in docker-compose.yml.
+[wsl2]
+memory=11GB
+processors=4
+swap=4GB

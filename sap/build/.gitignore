@@ -1,0 +1,5 @@
+# SAP archives and extracted payload are large and licensed — never commit them.
+archives/*
+!archives/.gitkeep
+sapdownloads/*
+!sapdownloads/.gitkeep

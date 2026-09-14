@@ -1,0 +1,70 @@
+# Local SAP NetWeaver AS ABAP 7.52 SP04 Developer Edition (SID NPL, SAP ASE) —
+# target for the driver's SAP GUI Scripting subsystem (csharp/DesktopDriverServer/Sap/).
+#
+# Light, ASE-based — ~6 GB RAM. The HANA-based sapse/abap-cloud-developer-trial needs 24 GB.
+#
+# Setup once (see sap/README.md for licensing + scripting switches):
+#   bash sap/build/build.sh                                             # extract + build base image
+#   docker compose -f sap/docker-compose.yml up -d
+#   docker compose -f sap/docker-compose.yml exec abap ./install.exp    # 20-40 min, installs into the volumes
+#   # then you may `rm -rf sap/build/sapdownloads/*` to reclaim ~35 GB
+#
+# Day to day:
+#   docker compose -f sap/docker-compose.yml up -d
+#   docker compose -f sap/docker-compose.yml exec abap /sap/start.sh
+#   docker compose -f sap/docker-compose.yml exec abap /sap/stop.sh
+#   docker compose -f sap/docker-compose.yml stop
+#
+services:
+  abap:
+    image: ${SAP_ABAP_IMAGE:-nwabap:7.52}
+    container_name: nwabap752
+    # Hostname MUST be vhcalnplci — the ABAP/ASE install binds to it and will not
+    # start under any other name.
+    hostname: vhcalnplci
+    ports:
+      - "3200:3200"     # SAP GUI dispatcher
+      - "3300:3300"     # gateway (ADT / RFC)
+      - "8000:8000"     # ICM http
+      - "44300:44300"   # ICM https
+    # ASE + ABAP fit in ~6 GB; cap well under the host's 15.7 GB so Windows + WSL2
+    # don't thrash.
+    mem_limit: 10g
+    shm_size: 4g
+    # ASE 16.0 SP03's dataserver SIGSEGVs in dsinit under the default Docker seccomp
+    # profile on a modern (6.x) kernel. Privileged mode (drops seccomp + grants the
+    # caps ASE's memory/timer setup needs) fixes it. This is a throwaway dev DB, so
+    # the trade-off is fine; if your policy forbids privileged, the narrower fix is
+    #   security_opt: ["seccomp:unconfined"]
+    #   cap_add: [SYS_RESOURCE, SYS_NICE, IPC_LOCK, SYS_PTRACE]
+    privileged: true
+    # vm.max_map_count isn't namespaced on the Docker Desktop kernel — set on the WSL2
+    # host (build.sh / README step 4):
+    #   wsl -d docker-desktop sysctl -w vm.max_map_count=2000000 kernel.randomize_va_space=0
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    stop_grace_period: 20m
+    stdin_open: true
+    tty: true
+    working_dir: /tmp/sapdownloads
+    command: ["tail", "-f", "/dev/null"]
+    volumes:
+      # Installed SAP + ASE — persisted across container recreation. The one-time
+      # install populates these; later `up` reuses them.
+      - abap_sapmnt:/sapmnt
+      - abap_usrsap:/usr/sap
+      - abap_sybase:/sybase
+      # Install payload (extracted archives) + the unattended-install wrapper.
+      # Consumed once by ./install.exp; after that you can empty
+      # sap/build/sapdownloads/ and this mount becomes a harmless empty dir.
+      - ./build/sapdownloads:/tmp/sapdownloads
+      - ./build/install.exp:/tmp/sapdownloads/install.exp:ro
+      # Helper scripts.
+      - ./scripts:/sap:ro
+
+volumes:
+  abap_sapmnt:
+  abap_usrsap:
+  abap_sybase:

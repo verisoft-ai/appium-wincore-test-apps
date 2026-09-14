@@ -1,0 +1,6 @@
+# Keep the multi-GB raw archives out of the Docker build context — only the
+# extracted sapdownloads/ payload is COPYed into the image.
+archives/
+*.rar
+*.RAR
+*.zip

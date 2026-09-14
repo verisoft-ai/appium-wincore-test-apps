@@ -9,6 +9,10 @@ Two fixtures are not correctness fixtures — they feed the driver's performance
 - `java-swing-large` (`LargeTreeForm.java`) — large Java Swing accessibility tree. `-DnodeCount=<n>`.
 - `winforms-large` (`WinformsLarge.csproj`) — large WinForms tree. `--nodes <n>`. Measured both via plain UIA and, when attached with `dotnetBridge:true`, via the .NET bridge — the same tree two ways.
 
+One fixture is not an app but a whole backend:
+
+- `sap/` — a Dockerised SAP NetWeaver AS ABAP 7.52 Developer Edition, the target for the driver's SAP GUI Scripting subsystem (`csharp/DesktopDriverServer/Sap/`). SAP GUI's custom-drawn controls are invisible to UIA; the driver reaches them through SAP's COM scripting API instead, and that API is empty until a real SAP session exists. `sap/README.md` is the full runbook (image build from SAP's archives, licence, scripting switches, connect). ~6 GB RAM, ~80 GB disk.
+
 ## Prerequisites
 
 - .NET SDK (8.0+ for the `net8-*` fixtures, .NET Framework for the rest)
