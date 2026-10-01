@@ -9,6 +9,10 @@ Two fixtures are not correctness fixtures — they feed the driver's performance
 - `java-swing-large` (`LargeTreeForm.java`) — large Java Swing accessibility tree. `-DnodeCount=<n>`.
 - `winforms-large` (`WinformsLarge.csproj`) — large WinForms tree. `--nodes <n>`. Measured both via plain UIA and, when attached with `dotnetBridge:true`, via the .NET bridge — the same tree two ways.
 
+One fixture is MSAA-only, for the driver's standard accessibility values (`LegacyValue`, verified select/expand/collapse):
+
+- `msaa-legacy-controls` (`MsaaLegacyControls.csproj`) — every control reaches UIA through UIAutomationCore's MSAA Proxy, the path VB6 / Delphi / older MFC / third-party grids take. A stock .NET Framework `DataGridView` (placeholder cell names, real content in `accValue`), an IAccessible-only outline with expandable groups (one never reports its state, one never changes), a legacy PIN box whose `accValue` leaks its secret despite `STATE_SYSTEM_PROTECTED`, a stock password `TextBox`, a stock `TreeView` as the UIA-native contrast, three combo boxes for the driver's ALT+Down expand fallback (stock, plus two MSAA-only ones with no ExpandCollapsePattern — one reporting collapsed/expanded state, one reporting none), a hosted WPF `Slider` (RangeValuePattern, native-UIA elements in an MSAA window), and raw-accessibility boxes with a 5000-character value and control characters. A status label echoes every effect as plain text. No licence needed.
+
 One fixture is not an app but a whole backend:
 
 - `sap/` — a Dockerised SAP NetWeaver AS ABAP 7.52 Developer Edition, the target for the driver's SAP GUI Scripting subsystem (`csharp/DesktopDriverServer/Sap/`). SAP GUI's custom-drawn controls are invisible to UIA; the driver reaches them through SAP's COM scripting API instead, and that API is empty until a real SAP session exists. `sap/README.md` is the full runbook (image build from SAP's archives, licence, scripting switches, connect). ~6 GB RAM, ~80 GB disk.
