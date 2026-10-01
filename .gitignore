@@ -64,3 +64,8 @@ winforms-large/obj/
 
 # local env
 sap/.env
+
+# msaa-legacy-controls — MSAA-only fixture (stock DataGridView + IAccessible-only controls).
+# Source is checked in, build output/obj is not (built via build:msaa-legacy-controls-test-app)
+msaa-legacy-controls/bin/
+msaa-legacy-controls/obj/

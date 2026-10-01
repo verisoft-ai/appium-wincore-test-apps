@@ -1,7 +1,7 @@
 # Local SAP backend for the driver's SAP GUI Scripting subsystem
 
 A throwaway **SAP NetWeaver AS ABAP 7.52 SP04 Developer Edition** (SID `NPL`, SAP ASE) in
-Docker — the target for `appium-desktop-driver`'s `csharp/DesktopDriverServer/Sap/`
+Docker — the target for `appium-wincore-driver`'s planned `csharp/WincoreServer/Sap/`
 (attach, page source, `FindById`, actions, grid/tree) and the source of the tree fixtures
 under the driver's `test/fixtures/sap/`.
 
@@ -24,7 +24,7 @@ Light, **ASE-based — ~6 GB RAM, ~40 GB disk after install**. Not the HANA-base
 > trial on plain VMs. The `build/` Dockerfile + `install.exp` + `scripts/` still apply
 > inside such a VM (drop the Docker layer, run `install.sh` on the host); the tree
 > below documents everything learned. Or borrow a non-prod SAP login and skip the
-> backend entirely — the driver subsystem (`csharp/DesktopDriverServer/Sap/`) only
+> backend entirely — the driver subsystem (`csharp/WincoreServer/Sap/`) only
 > needs one live SAP session to validate against.
 
 ---
@@ -172,7 +172,7 @@ Client side: SAP GUI Options → Accessibility & Scripting → Scripting → tic
 
 ### 9. Verify from the driver
 
-From the `appium-desktop-driver` checkout:
+From the `appium-wincore-driver` checkout (once the SAP subsystem lands):
 
 ```bash
 node scripts/sap-inspect.mjs

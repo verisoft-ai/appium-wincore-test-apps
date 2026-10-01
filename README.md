@@ -1,17 +1,21 @@
-# appium-windows2-test-apps
+# appium-wincore-test-apps
 
-Fixture apps (WinForms, WPF, DevExpress, Java Swing) used by [appium-desktop-driver](https://github.com/verisoft-ai/appium-desktop-driver)'s E2E test suite.
+Fixture apps (WinForms, WPF, DevExpress, Java Swing) used by the E2E and performance suites of [appium-wincore-driver](https://github.com/verisoft-ai/appium-wincore-driver) and its bridge plugins ([appium-wincore-java-bridge](https://github.com/y-schwab/appium-wincore-java-bridge), [appium-wincore-dotnet-bridge](https://github.com/y-schwab/appium-wincore-dotnet-bridge)).
 
 Each fixture app proves a specific UI Automation capability — owner-drawn controls invisible to plain UIA, DevExpress custom-drawn cells, CoreCLR bridge targets, x86 injection, etc. Source is checked in; build output (`bin/`, `obj/`) is not.
 
-Two fixtures are not correctness fixtures — they feed the driver's performance benchmark (`test/perf/` there), sized via a flag (default 1500):
+Two fixtures are not correctness fixtures — they feed the bridge plugins' performance benchmarks, sized via a flag (default 1500):
 
-- `java-swing-large` (`LargeTreeForm.java`) — large Java Swing accessibility tree. `-DnodeCount=<n>`.
-- `winforms-large` (`WinformsLarge.csproj`) — large WinForms tree. `--nodes <n>`. Measured both via plain UIA and, when attached with `dotnetBridge:true`, via the .NET bridge — the same tree two ways.
+- `java-swing-large` (`LargeTreeForm.java`) — large Java Swing accessibility tree, for appium-wincore-java-bridge. `-DnodeCount=<n>`.
+- `winforms-large` (`WinformsLarge.csproj`) — large WinForms tree, for appium-wincore-dotnet-bridge. `--nodes <n>`. Measured both via plain UIA and, when attached with `dotnetBridge:true`, via the .NET bridge — the same tree two ways.
+
+One fixture is MSAA-only, for the driver's standard accessibility values (`LegacyValue`, verified select/expand/collapse):
+
+- `msaa-legacy-controls` (`MsaaLegacyControls.csproj`) — every control reaches UIA through UIAutomationCore's MSAA Proxy, the path VB6 / Delphi / older MFC / third-party grids take. A stock .NET Framework `DataGridView` (placeholder cell names, real content in `accValue`), an IAccessible-only outline with expandable groups (one never reports its state, one never changes), a legacy PIN box whose `accValue` leaks its secret despite `STATE_SYSTEM_PROTECTED`, a stock password `TextBox`, a stock `TreeView` as the UIA-native contrast, three combo boxes for the driver's ALT+Down expand fallback (stock, plus two MSAA-only ones with no ExpandCollapsePattern — one reporting collapsed/expanded state, one reporting none), a hosted WPF `Slider` (RangeValuePattern, native-UIA elements in an MSAA window), and raw-accessibility boxes with a 5000-character value and control characters. A status label echoes every effect as plain text. No licence needed.
 
 One fixture is not an app but a whole backend:
 
-- `sap/` — a Dockerised SAP NetWeaver AS ABAP 7.52 Developer Edition, the target for the driver's SAP GUI Scripting subsystem (`csharp/DesktopDriverServer/Sap/`). SAP GUI's custom-drawn controls are invisible to UIA; the driver reaches them through SAP's COM scripting API instead, and that API is empty until a real SAP session exists. `sap/README.md` is the full runbook (image build from SAP's archives, licence, scripting switches, connect). ~6 GB RAM, ~80 GB disk.
+- `sap/` — a Dockerised SAP NetWeaver AS ABAP 7.52 Developer Edition, the target for the driver's planned SAP GUI Scripting subsystem (`csharp/WincoreServer/Sap/`). SAP GUI's custom-drawn controls are invisible to UIA; the driver reaches them through SAP's COM scripting API instead, and that API is empty until a real SAP session exists. `sap/README.md` is the full runbook (image build from SAP's archives, licence, scripting switches, connect). ~6 GB RAM, ~80 GB disk.
 
 ## Prerequisites
 
@@ -28,15 +32,15 @@ npm run build:all         # every fixture app
 
 Or build one at a time — see `package.json` for the full list of `build:*` scripts, one per fixture.
 
-## Usage from appium-desktop-driver
+## Usage from appium-wincore-driver
 
-`appium-desktop-driver`'s E2E tests (`test/e2e/helpers/session.ts`) resolve fixture paths via a `TEST_APPS_DIR` environment variable, defaulting to a sibling checkout:
+`appium-wincore-driver`'s E2E tests (`test/e2e/helpers/session.ts`) resolve fixture paths via a `TEST_APPS_DIR` environment variable, defaulting to a sibling checkout:
 
+```text
+../appium-wincore-test-apps
 ```
-../appium-windows2-test-apps
-```
 
-Clone this repo next to `appium-desktop-driver`, build the fixtures you need, then run `npm run test:e2e` from the driver repo.
+Clone this repo next to `appium-wincore-driver`, build the fixtures you need, then run `npm run test:e2e` from the driver repo.
 
 ## License
 

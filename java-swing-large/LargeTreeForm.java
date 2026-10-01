@@ -6,7 +6,7 @@ import java.awt.*;
 /**
  * Performance fixture: a deliberately large Java Swing accessibility tree used to
  * benchmark the java-agent tree-walk paths (getPageSource, full-tree XPath scans,
- * bulk getAttribute) in appium-desktop-driver.
+ * bulk getAttribute) in appium-wincore-java-bridge.
  *
  * <p>Not a correctness fixture — it proves no single UIA capability. It exists so
  * {@code test/perf/java-pagesource.perf.ts} has a stable, sizeable tree to measure

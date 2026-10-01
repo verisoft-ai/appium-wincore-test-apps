@@ -8,7 +8,7 @@ namespace WinformsLarge;
 
 /// <summary>
 /// Performance fixture: a deliberately large WinForms UI tree. Used by
-/// appium-desktop-driver's perf benchmark to measure the plain-UIA tree walk
+/// appium-wincore-dotnet-bridge's perf benchmark to measure the plain-UIA tree walk
 /// (getPageSource / XPath materialisation) and, when attached with
 /// <c>dotnetBridge:true</c>, the .NET bridge's reflected-tree walk — the same tree
 /// two ways, so the two costs are directly comparable.

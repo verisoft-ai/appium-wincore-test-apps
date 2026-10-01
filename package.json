@@ -1,8 +1,8 @@
 {
-  "name": "appium-windows2-test-apps",
+  "name": "appium-wincore-test-apps",
   "version": "1.0.0",
   "private": true,
-  "description": "Fixture apps (WinForms, WPF, DevExpress, Java Swing) used by appium-desktop-driver's E2E test suite",
+  "description": "Fixture apps (WinForms, WPF, DevExpress, Java Swing) used by the E2E and performance suites of appium-wincore-driver and its bridge plugins",
   "scripts": {
     "build:winform-test-app": "dotnet publish winform-combo/WinformCombo.csproj -c Release -o winform-combo/bin",
     "build:wpf-minimal-test-app": "dotnet publish wpf-minimal/WpfMinimal.csproj -c Release -o wpf-minimal/bin",
@@ -21,15 +21,19 @@
     "build:ownerdraw-gallery-test-app": "dotnet build ownerdraw-gallery/OwnerDrawGallery.csproj -c Debug -p:Platform=x64",
     "build:devexpress-lightweight-test-app": "node scripts/build-devexpress-lightweight-test-app.js",
     "build:test-apps": "npm run build:winform-test-app && npm run build:wpf-minimal-test-app && npm run build:wpf-datagrid-template-test-app && npm run build:java-swing-test-app && npm run build:java-swing-table-test-app && npm run build:devexpress-test-app",
-    "build:all": "npm run build:winform-test-app && npm run build:wpf-minimal-test-app && npm run build:net8-winforms-minimal-test-app && npm run build:net8-winforms-minimal-x86-test-app && npm run build:net8-wpf-minimal-test-app && npm run build:wpf-datagrid-template-test-app && npm run build:java-swing-test-app && npm run build:java-swing-table-test-app && npm run build:java-swing-large-test-app && npm run build:winforms-large-test-app && npm run build:devexpress-test-app && npm run build:devexpress-elements-gallery-test-app && npm run build:minimal-ownerdraw-winforms-test-app && npm run build:minimal-ownerdraw-x86-test-app && npm run build:ownerdraw-gallery-test-app && npm run build:devexpress-lightweight-test-app"
+    "build:all": "npm run build:winform-test-app && npm run build:wpf-minimal-test-app && npm run build:net8-winforms-minimal-test-app && npm run build:net8-winforms-minimal-x86-test-app && npm run build:net8-wpf-minimal-test-app && npm run build:wpf-datagrid-template-test-app && npm run build:java-swing-test-app && npm run build:java-swing-table-test-app && npm run build:java-swing-large-test-app && npm run build:winforms-large-test-app && npm run build:devexpress-test-app && npm run build:devexpress-elements-gallery-test-app && npm run build:minimal-ownerdraw-winforms-test-app && npm run build:minimal-ownerdraw-x86-test-app && npm run build:ownerdraw-gallery-test-app && npm run build:devexpress-lightweight-test-app && npm run build:msaa-legacy-controls-test-app",
+    "build:msaa-legacy-controls-test-app": "dotnet build msaa-legacy-controls/MsaaLegacyControls.csproj -c Debug -p:Platform=x64"
   },
-  "author": "Automate The Planet",
+  "author": "verisoft-ai",
+  "contributors": [
+    "Yuri Schwab (https://github.com/y-schwab)"
+  ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/verisoft-ai/appium-windows2-test-apps.git"
+    "url": "https://github.com/verisoft-ai/appium-wincore-test-apps.git"
   },
   "bugs": {
-    "url": "https://github.com/verisoft-ai/appium-windows2-test-apps/issues"
+    "url": "https://github.com/verisoft-ai/appium-wincore-test-apps/issues"
   }
 }
