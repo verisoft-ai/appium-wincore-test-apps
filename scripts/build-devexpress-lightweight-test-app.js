@@ -1,5 +1,5 @@
 // Builds the wpf-devexpress-lightweight/ fixture used by
-// appium-desktop-driver's test/e2e/dotnet-bridge-devexpress-lightweight.e2e.ts. CoreCLR (.NET 8)
+// the .NET bridge plugin's (appium-wincore-dotnet-bridge) DevExpress lightweight e2e. CoreCLR (.NET 8)
 // WPF, DevExpress.Xpf.Grid GridControl with 5000 rows and explicit (non-auto-generated) columns —
 // large enough that TableView renders unfocused/off-screen cells via
 // DevExpress.Xpf.Grid.LightweightCellEditor (DevExpress's own perf optimization for virtualized

@@ -1,8 +1,8 @@
 {
-  "name": "appium-windows2-test-apps",
+  "name": "appium-wincore-test-apps",
   "version": "1.0.0",
   "private": true,
-  "description": "Fixture apps (WinForms, WPF, DevExpress, Java Swing) used by appium-desktop-driver's E2E test suite",
+  "description": "Fixture apps (WinForms, WPF, DevExpress, Java Swing) used by the E2E and performance suites of appium-wincore-driver and its bridge plugins",
   "scripts": {
     "build:winform-test-app": "dotnet publish winform-combo/WinformCombo.csproj -c Release -o winform-combo/bin",
     "build:wpf-minimal-test-app": "dotnet publish wpf-minimal/WpfMinimal.csproj -c Release -o wpf-minimal/bin",
@@ -31,9 +31,9 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/verisoft-ai/appium-windows2-test-apps.git"
+    "url": "https://github.com/verisoft-ai/appium-wincore-test-apps.git"
   },
   "bugs": {
-    "url": "https://github.com/verisoft-ai/appium-windows2-test-apps/issues"
+    "url": "https://github.com/verisoft-ai/appium-wincore-test-apps/issues"
   }
 }
