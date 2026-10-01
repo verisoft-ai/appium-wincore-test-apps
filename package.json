@@ -24,7 +24,10 @@
     "build:all": "npm run build:winform-test-app && npm run build:wpf-minimal-test-app && npm run build:net8-winforms-minimal-test-app && npm run build:net8-winforms-minimal-x86-test-app && npm run build:net8-wpf-minimal-test-app && npm run build:wpf-datagrid-template-test-app && npm run build:java-swing-test-app && npm run build:java-swing-table-test-app && npm run build:java-swing-large-test-app && npm run build:winforms-large-test-app && npm run build:devexpress-test-app && npm run build:devexpress-elements-gallery-test-app && npm run build:minimal-ownerdraw-winforms-test-app && npm run build:minimal-ownerdraw-x86-test-app && npm run build:ownerdraw-gallery-test-app && npm run build:devexpress-lightweight-test-app && npm run build:msaa-legacy-controls-test-app",
     "build:msaa-legacy-controls-test-app": "dotnet build msaa-legacy-controls/MsaaLegacyControls.csproj -c Debug -p:Platform=x64"
   },
-  "author": "Automate The Planet",
+  "author": "verisoft-ai",
+  "contributors": [
+    "Yuri Schwab (https://github.com/y-schwab)"
+  ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
