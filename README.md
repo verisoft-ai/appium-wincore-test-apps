@@ -1,8 +1,10 @@
 # appium-wincore-test-apps
 
-Fixture apps (WinForms, WPF, DevExpress, Java Swing) used by the E2E and performance suites of [appium-wincore-driver](https://github.com/verisoft-ai/appium-wincore-driver) and its bridge plugins ([appium-wincore-java-bridge](https://github.com/y-schwab/appium-wincore-java-bridge), [appium-wincore-dotnet-bridge](https://github.com/y-schwab/appium-wincore-dotnet-bridge)).
+Fixture apps (WinForms, WPF, DevExpress, Java Swing) used by the E2E and performance suites of [appium-wincore-driver](https://github.com/verisoft-ai/appium-wincore-driver) and its bridge plugins ([appium-wincore-java-bridge](https://github.com/verisoft-ai/appium-wincore-java-bridge), [appium-wincore-dotnet-bridge](https://github.com/y-schwab/appium-wincore-dotnet-bridge)).
 
 Each fixture app proves a specific UI Automation capability — owner-drawn controls invisible to plain UIA, DevExpress custom-drawn cells, CoreCLR bridge targets, x86 injection, etc. Source is checked in; build output (`bin/`, `obj/`) is not.
+
+`java-swing-controls` (`ControlsForm.java`) — tree, single/multi-select lists, a 150-row scrolling list, slider, progress bar and combo box, for appium-wincore-java-bridge's optional provider capabilities (collapse, scroll-into-view, selection, range value) and `IsOffscreen`.
 
 Two fixtures are not correctness fixtures — they feed the bridge plugins' performance benchmarks, sized via a flag (default 1500):
 
