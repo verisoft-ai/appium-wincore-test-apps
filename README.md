@@ -1,8 +1,8 @@
 # appium-wincore-test-apps
 
-Fixture apps (WinForms, WPF, DevExpress, Java Swing) used by the E2E and performance suites of [appium-wincore-driver](https://github.com/verisoft-ai/appium-wincore-driver) and its bridge plugins ([appium-wincore-java-bridge](https://github.com/verisoft-ai/appium-wincore-java-bridge), [appium-wincore-dotnet-bridge](https://github.com/y-schwab/appium-wincore-dotnet-bridge)).
+Fixture apps (WinForms, WPF, Java Swing) used by the E2E and performance suites of [appium-wincore-driver](https://github.com/verisoft-ai/appium-wincore-driver) and its bridge plugins ([appium-wincore-java-bridge](https://github.com/verisoft-ai/appium-wincore-java-bridge), [appium-wincore-dotnet-bridge](https://github.com/y-schwab/appium-wincore-dotnet-bridge)).
 
-Each fixture app proves a specific UI Automation capability — owner-drawn controls invisible to plain UIA, DevExpress custom-drawn cells, CoreCLR bridge targets, x86 injection, etc. Source is checked in; build output (`bin/`, `obj/`) is not.
+Each fixture app proves a specific UI Automation capability — owner-drawn controls with no accessibility data (the .NET bridge's only use case), CoreCLR bridge targets, x86 injection, MSAA-only controls for the driver's `LegacyValue`, etc. Source is checked in; build output (`bin/`, `obj/`) is not.
 
 `java-swing-controls` (`ControlsForm.java`) — tree, single/multi-select lists, a 150-row scrolling list, slider, progress bar and combo box, for appium-wincore-java-bridge's optional provider capabilities (collapse, scroll-into-view, selection, range value) and `IsOffscreen`.
 
@@ -23,12 +23,11 @@ One fixture is not an app but a whole backend:
 
 - .NET SDK (8.0+ for the `net8-*` fixtures, .NET Framework for the rest)
 - JDK 8+ (for `java-swing-form`)
-- A DevExpress license for the `devexpress-*` fixtures — set `DevExpress_License` (or `DevExpress_LicensePath`) to your key. Without it the build still succeeds (DX1000 evaluation watermark), but the running app shows a trial nag dialog on launch.
 
 ## Building
 
 ```bash
-npm run build:test-apps   # the original small set: winform-combo, wpf-minimal, wpf-datagrid-template, java-swing-form, devexpress-grid-ownerdraw
+npm run build:test-apps   # the original small set: winform-combo, wpf-datagrid-template, java-swing-form, java-swing-table
 npm run build:all         # every fixture app
 ```
 

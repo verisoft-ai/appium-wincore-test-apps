@@ -7,11 +7,6 @@ java-swing-form/*.class
 java-swing-table/*.class
 java-swing-controls/*.class
 
-# DevExpress grid owner-draw test-fixture app — source is checked in, but build output/obj is
-# not (built at test time via build:devexpress-test-app)
-devexpress-grid-ownerdraw/bin/
-devexpress-grid-ownerdraw/obj/
-
 # Minimal owner-draw test-fixture app — source is checked in, build output/obj is not
 minimal-ownerdraw-winforms/bin/
 minimal-ownerdraw-winforms/obj/
@@ -23,16 +18,6 @@ minimal-ownerdraw-x86/obj/
 # OwnerDraw gallery test-fixture app — source is checked in, build output/obj is not
 ownerdraw-gallery/bin/
 ownerdraw-gallery/obj/
-
-# DevExpress-specific elements gallery test-fixture app — source is checked in, build output/obj
-# is not (built at test time via build:devexpress-elements-gallery-test-app)
-devexpress-elements-gallery/bin/
-devexpress-elements-gallery/obj/
-
-# WPF minimal test-fixture app — source is checked in, build output/obj is not (built at test time
-# via build:wpf-minimal-test-app)
-wpf-minimal/bin/
-wpf-minimal/obj/
 
 # WPF DataGrid templated-column test-fixture app — source is checked in, build output/obj is not
 # (built at test time via build:wpf-datagrid-template-test-app)
@@ -47,12 +32,6 @@ net8-winforms-minimal/obj/
 # net8-wpf-minimal — WPF twin used to reproduce/verify the profiler's WPF anchor fix
 net8-wpf-minimal/bin/
 net8-wpf-minimal/obj/
-
-# wpf-devexpress-lightweight — CoreCLR WPF DevExpress.Xpf.Grid fixture, reproduces
-# LightweightCellEditor's blank-value bug. Source is checked in, build output/obj is not
-# (built at test time via build:devexpress-lightweight-test-app)
-wpf-devexpress-lightweight/bin/
-wpf-devexpress-lightweight/obj/
 
 node_modules/
 
