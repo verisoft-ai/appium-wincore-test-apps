@@ -406,6 +406,7 @@ internal sealed class MainForm : Form
 
     // Stock TrackBar: UIA's trackbar proxy exposes RangeValuePattern (setRangeValue).
     private double _wpfSliderValue = 3;
+    private string _wpfComboValue = "none";
     private readonly TrackBar _slider = new() { Name = "volumeSlider", Minimum = 0, Maximum = 10, Value = 2, Width = 160 };
 
     public MainForm()
@@ -534,7 +535,26 @@ internal sealed class MainForm : Form
         var stack = new System.Windows.Controls.StackPanel();
         stack.Children.Add(slider);
         stack.Children.Add(button);
-        return new System.Windows.Forms.Integration.ElementHost { Width = 170, Height = 60, Child = stack };
+        stack.Children.Add(BuildWpfVirtualizedCombo());
+        return new System.Windows.Forms.Integration.ElementHost { Width = 170, Height = 85, Child = stack };
+    }
+
+    // WPF ComboBox with 300 entries on a VirtualizingStackPanel: only the rows on screen get
+    // containers, so UIA shows roughly one popup's worth of ListItems at a time and the rest
+    // has to be scrolled into view (selectFromCombobox's scrolling path).
+    // A non-editable WPF ComboBox has no ValuePattern, so the status label reports the selection.
+    private System.Windows.Controls.ComboBox BuildWpfVirtualizedCombo()
+    {
+        var combo = new System.Windows.Controls.ComboBox { Width = 150 };
+        System.Windows.Automation.AutomationProperties.SetAutomationId(combo, "wpfVirtualCombo");
+        combo.ItemsPanel = new System.Windows.Controls.ItemsPanelTemplate(
+            new System.Windows.FrameworkElementFactory(typeof(System.Windows.Controls.VirtualizingStackPanel)));
+        System.Windows.Controls.VirtualizingPanel.SetIsVirtualizing(combo, true);
+        combo.ItemsSource = Enumerable.Range(1, 300).Select(i => $"Item {i:000}").ToList();
+        combo.SelectedIndex = 0;
+        _wpfComboValue = (string)combo.SelectedItem;
+        combo.SelectionChanged += (_, _) => { _wpfComboValue = combo.SelectedItem as string ?? "none"; UpdateStatus(); };
+        return combo;
     }
 
     private void UpdateStatus()
@@ -545,7 +565,7 @@ internal sealed class MainForm : Form
             : $"{_grid.Rows[cell.RowIndex].Cells[0].Value}/{_grid.Columns[cell.ColumnIndex].HeaderText}";
         var expanded = string.Join(",", _outline.Groups.Where(g => g.Expanded).Select(g => g.Value.Replace("Region: ", "")));
         var treeText = _tree.Nodes[0].IsExpanded ? "expanded" : "collapsed";
-        _status.Text = $"Grid: {gridText} | Outline selected: {_outline.SelectedItem ?? "none"} | Outline expanded: {expanded} | Tree: {treeText} | Combo: {(_comboOpen ? "open" : "closed")} | LegacyComboState: {(_legacyComboState.IsOpen ? "open" : "closed")} | LegacyComboNoState: {(_legacyComboNoState.IsOpen ? "open" : "closed")} | Slider: {_slider.Value} | WpfSlider: {_wpfSliderValue:0.##}";
+        _status.Text = $"Grid: {gridText} | Outline selected: {_outline.SelectedItem ?? "none"} | Outline expanded: {expanded} | Tree: {treeText} | Combo: {(_comboOpen ? "open" : "closed")} | LegacyComboState: {(_legacyComboState.IsOpen ? "open" : "closed")} | LegacyComboNoState: {(_legacyComboNoState.IsOpen ? "open" : "closed")} | Slider: {_slider.Value} | WpfSlider: {_wpfSliderValue:0.##} | WpfCombo: {_wpfComboValue}";
     }
 }
 
