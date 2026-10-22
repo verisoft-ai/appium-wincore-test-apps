@@ -11,7 +11,7 @@
 
 .NOTES
   Both servers read their credentials from servers\<name>\security\boot.properties
-  (README.md step 5) — this script never handles a password.
+  (README.md, "Environment and server credentials") - this script never handles a password.
 #>
 param(
     [string]$DomainHome = $(if ($env:DOMAIN_HOME) { $env:DOMAIN_HOME } else { 'C:\Oracle\Middleware\Oracle_Home\user_projects\domains\base_domain' }),

@@ -7,7 +7,7 @@
   ?config=wincore.
 
 .NOTES
-  Idempotent — safe to re-run (the CI workflow runs it on every job). Needs an installed
+  Idempotent - safe to re-run (the CI workflow runs it on every job). Needs an installed
   Oracle Forms (see README.md). Paths default to the README's install layout; override
   with parameters or the ORACLE_HOME / DOMAIN_HOME environment variables.
 #>
@@ -23,7 +23,7 @@ $out = Join-Path $here 'build'
 New-Item -ItemType Directory -Force $out | Out-Null
 
 function Require-Path([string]$path, [string]$what) {
-    if (-not (Test-Path $path)) { throw "$what not found at $path — is Oracle Forms installed (README.md step 3)?" }
+    if (-not (Test-Path $path)) { throw "$what not found at $path - is Oracle Forms installed (README.md, 'FMW Infrastructure and Forms')?" }
     return (Resolve-Path $path).Path
 }
 
@@ -43,14 +43,14 @@ if (-not $frmcmp) { throw "Forms compiler (frmcmp_batch) not found under $Domain
 
 $formsweb = Get-ChildItem (Join-Path $DomainHome 'config\fmwconfig\servers\WLS_FORMS\applications') -Recurse -Filter 'formsweb.cfg' -ErrorAction SilentlyContinue |
     Select-Object -First 1 -ExpandProperty FullName
-if (-not $formsweb) { throw "formsweb.cfg not found under $DomainHome — has the Forms domain been configured (README.md step 4)?" }
+if (-not $formsweb) { throw "formsweb.cfg not found under $DomainHome - has the Forms domain been configured (README.md, 'Schemas and domain')?" }
 
 Write-Host "ORACLE_HOME:  $OracleHome"
 Write-Host "DOMAIN_HOME:  $DomainHome"
 Write-Host "frmcmp:       $frmcmp"
 Write-Host "formsweb.cfg: $formsweb"
 
-# ── 1. .fmb via JDAPI ────────────────────────────────────────────────────────────
+# -- 1. .fmb via JDAPI ------------------------------------------------------------
 # JDAPI is a thin Java layer over the Forms native libraries, so ORACLE_HOME\bin must be on PATH.
 $env:PATH = "$(Join-Path $OracleHome 'bin');$env:PATH"
 $genOut = Join-Path $out 'generator'
@@ -61,7 +61,7 @@ $fmb = Join-Path $out 'wincore_fixture.fmb'
 & java -cp "$jdapiJar;$genOut" GenerateFixture $fmb
 if ($LASTEXITCODE -ne 0) { throw 'GenerateFixture failed' }
 
-# ── 2. .fmx ──────────────────────────────────────────────────────────────────────
+# -- 2. .fmx ----------------------------------------------------------------------
 # logon=no: the form has no database items, so the compiler needs no connection.
 $fmx = Join-Path $out 'wincore_fixture.fmx'
 & $frmcmp "module=$fmb" 'module_type=form' 'logon=no' 'compile_all=yes' "output_file=$fmx"
@@ -70,7 +70,7 @@ if ($LASTEXITCODE -ne 0 -or -not (Test-Path $fmx)) {
     throw 'frmcmp_batch failed (see .err output above)'
 }
 
-# ── 3. PJC jar ───────────────────────────────────────────────────────────────────
+# -- 3. PJC jar -------------------------------------------------------------------
 $pjcOut = Join-Path $out 'pjc'
 New-Item -ItemType Directory -Force $pjcOut | Out-Null
 & javac --release 8 -cp $frmallJar -d $pjcOut (Join-Path $here 'pjc\VTextFieldEng.java')
@@ -91,7 +91,7 @@ if (-not (Test-Path $keystore)) {
 if ($LASTEXITCODE -ne 0) { throw 'jarsigner failed' }
 Copy-Item $pjcJar (Join-Path $OracleHome 'forms\java\wincore-pjc.jar') -Force
 
-# ── 4. formsweb.cfg [wincore] section ────────────────────────────────────────────
+# -- 4. formsweb.cfg [wincore] section --------------------------------------------
 $section = @"
 [$ConfigName]
 form=$fmx

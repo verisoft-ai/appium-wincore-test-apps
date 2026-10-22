@@ -129,11 +129,5 @@ cd C:\src\test-apps\oracle-forms
 
 ### Runner
 
-Token from the java-bridge repo's Settings → Actions → Runners. Not as a
-service: the tests need a desktop.
-
-```powershell
-.\config.cmd --url https://github.com/verisoft-ai/appium-wincore-java-bridge `
-  --token <TOKEN> --labels oracle-forms --unattended
-.\run.cmd
-```
+The E2E workflows run on the existing self-hosted Windows runner (labels
+`self-hosted`, `Windows`, `X64`); install Oracle Forms on that machine.
