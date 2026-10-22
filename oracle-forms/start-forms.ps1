@@ -5,13 +5,16 @@
   if they aren't answering, then waits for the Forms servlet.
 
 .PARAMETER Register
-  Instead of starting now, registers a Scheduled Task that runs this script at system
-  start-up (as SYSTEM), so the runner finds Forms already up. Run once from an elevated
-  PowerShell.
+  Instead of starting now, registers a Scheduled Task that runs this script when the
+  current user logs on, not elevated, so the runner finds Forms already up.
 
 .NOTES
   Both servers read their credentials from servers\<name>\security\boot.properties
   (README.md, "Environment and server credentials") - this script never handles a password.
+
+  Always start the servers as the runner's user, not elevated: the AdminServer's credential
+  store creates bootstrap\cwallet.sso.lck with owner-only permissions, and a lock left by an
+  elevated or SYSTEM start makes every later non-elevated start fail with JPS-01050.
 #>
 param(
     [string]$DomainHome = $(if ($env:DOMAIN_HOME) { $env:DOMAIN_HOME } else { 'C:\Oracle\Middleware\Oracle_Home\user_projects\domains\base_domain' }),
@@ -24,10 +27,12 @@ $ErrorActionPreference = 'Stop'
 if ($Register) {
     $action = New-ScheduledTaskAction -Execute 'powershell.exe' `
         -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`" -DomainHome `"$DomainHome`""
-    $trigger = New-ScheduledTaskTrigger -AtStartup
+    $user = "${env:USERDOMAIN}\${env:USERNAME}"
+    $trigger = New-ScheduledTaskTrigger -AtLogOn -User $user
+    $principal = New-ScheduledTaskPrincipal -UserId $user -LogonType Interactive -RunLevel Limited
     Register-ScheduledTask -TaskName 'Wincore Oracle Forms' -Action $action -Trigger $trigger `
-        -User 'SYSTEM' -RunLevel Highest -Force | Out-Null
-    Write-Host "Registered scheduled task 'Wincore Oracle Forms' (runs at start-up)."
+        -Principal $principal -Force | Out-Null
+    Write-Host "Registered scheduled task 'Wincore Oracle Forms' (runs at $user's logon, not elevated)."
     return
 }
 

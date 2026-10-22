@@ -30,16 +30,9 @@ function Require-Path([string]$path, [string]$what) {
 $jdapiJar = Require-Path (Join-Path $OracleHome 'jlib\frmjdapi.jar') 'JDAPI jar (frmjdapi.jar)'
 $frmallJar = Require-Path (Join-Path $OracleHome 'forms\java\frmall.jar') 'Forms client jar (frmall.jar)'
 
-# The Forms compiler script is per-instance in 12c+. 14.1.2 puts the instance at
-# components\FORMS\forms1 (12c used components\FORMS\instances\forms1), so search the whole
-# FORMS folder; fall back to ORACLE_HOME\bin.
-$frmcmp = Get-ChildItem (Join-Path $DomainHome 'config\fmwconfig\components\FORMS') -Recurse -Include 'frmcmp_batch.cmd', 'frmcmp_batch.bat' -ErrorAction SilentlyContinue |
-    Select-Object -First 1 -ExpandProperty FullName
-if (-not $frmcmp) {
-    $frmcmp = Get-ChildItem (Join-Path $OracleHome 'bin') -Include 'frmcmp_batch.cmd', 'frmcmp_batch.bat', 'frmcmp_batch.exe' -Recurse -Depth 0 -ErrorAction SilentlyContinue |
-        Select-Object -First 1 -ExpandProperty FullName
-}
-if (-not $frmcmp) { throw "Forms compiler (frmcmp_batch) not found under $DomainHome or $OracleHome\bin" }
+# A 14.1.2 domain on Windows has no per-instance frmcmp_batch script (the instance's tools
+# folder only holds jvm), so call the compiler in ORACLE_HOME\bin directly.
+$frmcmp = Require-Path (Join-Path $OracleHome 'bin\frmcmp.exe') 'Forms compiler (frmcmp.exe)'
 
 $formsweb = Get-ChildItem (Join-Path $DomainHome 'config\fmwconfig\servers\WLS_FORMS\applications') -Recurse -Filter 'formsweb.cfg' -ErrorAction SilentlyContinue |
     Select-Object -First 1 -ExpandProperty FullName
@@ -63,11 +56,16 @@ if ($LASTEXITCODE -ne 0) { throw 'GenerateFixture failed' }
 
 # -- 2. .fmx ----------------------------------------------------------------------
 # logon=no: the form has no database items, so the compiler needs no connection.
+# batch=yes: no dialogs. frmcmp.exe is a GUI-subsystem program, which PowerShell's & doesn't
+# wait for, so start it explicitly and wait on its exit code.
 $fmx = Join-Path $out 'wincore_fixture.fmx'
-& $frmcmp "module=$fmb" 'module_type=form' 'logon=no' 'compile_all=yes' "output_file=$fmx"
-if ($LASTEXITCODE -ne 0 -or -not (Test-Path $fmx)) {
-    Get-ChildItem $out -Filter '*.err' | ForEach-Object { Get-Content $_.FullName }
-    throw 'frmcmp_batch failed (see .err output above)'
+Remove-Item $fmx -ErrorAction SilentlyContinue
+$env:ORACLE_HOME = $OracleHome
+$cmp = Start-Process -FilePath $frmcmp -Wait -PassThru -NoNewWindow -WorkingDirectory $out `
+    -ArgumentList "module=$fmb", 'module_type=form', 'logon=no', 'batch=yes', 'compile_all=yes', "output_file=$fmx"
+if ($cmp.ExitCode -ne 0 -or -not (Test-Path $fmx)) {
+    Get-ChildItem $out -Filter '*.err' | ForEach-Object { Write-Host "--- $($_.Name) ---"; Get-Content $_.FullName }
+    throw "frmcmp.exe failed (exit $($cmp.ExitCode); see .err output above)"
 }
 
 # -- 3. PJC jar -------------------------------------------------------------------

@@ -116,12 +116,17 @@ $c = Get-Credential -UserName weblogic -Message 'WebLogic admin'
 
 ### Fixture
 
+From a **non-elevated** PowerShell, as the runner's user. The AdminServer's
+credential store leaves `bootstrap\cwallet.sso.lck` owned by whoever started
+it, owner-only; after an elevated start, the runner's starts fail with
+JPS-01050 until that file is deleted. The CI workflow runs the same scripts,
+so locally this is only for trying the form by hand.
+
 ```powershell
-git clone -b feat/oracle-forms-fixture `
-  https://github.com/verisoft-ai/appium-wincore-test-apps.git C:\src\test-apps
+git clone https://github.com/verisoft-ai/appium-wincore-test-apps.git `
+  C:\src\test-apps
 cd C:\src\test-apps\oracle-forms
 .\start-forms.ps1
-.\start-forms.ps1 -Register
 .\build.ps1
 & "$env:JAVA_HOME\bin\java" -jar "$oh\forms\java\frmsal.jar" `
   -url 'http://localhost:9001/forms/frmservlet?config=wincore'
