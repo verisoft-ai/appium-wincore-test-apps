@@ -31,16 +31,31 @@ if ($Register) {
     return
 }
 
-function Test-Url([string]$url) {
-    try { return (Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 5).StatusCode -lt 500 } catch { return $false }
+# HTTP status of $url, or 0 when nothing answers. Invoke-WebRequest throws on 4xx/5xx, so
+# the status is read from the exception.
+function Get-Status([string]$url) {
+    try { return [int](Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 5).StatusCode }
+    catch {
+        if ($_.Exception.Response) { return [int]$_.Exception.Response.StatusCode }
+        return 0
+    }
 }
 
-function Wait-Url([string]$url, [string]$what) {
+# Up = answering and not 503. WebLogic's /weblogic/ready returns 503 until the server is
+# RUNNING; 14.1.2 has no /console to probe.
+function Test-Up([string]$url) {
+    $s = Get-Status $url
+    return $s -ne 0 -and $s -ne 503
+}
+
+function Wait-Up([string]$url, [string]$what, [string]$log) {
     $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
     while ((Get-Date) -lt $deadline) {
-        if (Test-Url $url) { Write-Host "$what is up."; return }
+        if (Test-Up $url) { Write-Host "$what is up."; return }
         Start-Sleep -Seconds 5
     }
+    Write-Host "--- last 40 lines of $log ---"
+    Get-Content $log -Tail 40 -ErrorAction SilentlyContinue
     throw "$what did not come up within ${TimeoutSeconds}s ($url)"
 }
 
@@ -48,18 +63,24 @@ $bin = Join-Path $DomainHome 'bin'
 $logs = Join-Path $DomainHome 'servers\wincore-start-logs'
 New-Item -ItemType Directory -Force $logs | Out-Null
 
-if (-not (Test-Url 'http://localhost:7001/console')) {
+$adminReady = 'http://localhost:7001/weblogic/ready'
+if (-not (Test-Up $adminReady)) {
     Write-Host 'Starting AdminServer...'
-    Start-Process -FilePath (Join-Path $bin 'startWebLogic.cmd') -WindowStyle Hidden `
-        -RedirectStandardOutput (Join-Path $logs 'AdminServer.out') -RedirectStandardError (Join-Path $logs 'AdminServer.err')
-    Wait-Url 'http://localhost:7001/console' 'AdminServer'
+    $out = Join-Path $logs 'AdminServer.out'
+    Start-Process -FilePath (Join-Path $bin 'startWebLogic.cmd') -WorkingDirectory $DomainHome -WindowStyle Hidden `
+        -RedirectStandardOutput $out -RedirectStandardError (Join-Path $logs 'AdminServer.err')
+    Wait-Up $adminReady 'AdminServer' $out
 }
 
-if (-not (Test-Url 'http://localhost:9001/forms/frmservlet')) {
+# The managed server's own readiness endpoint, so a half-deployed formsapp (404) isn't "up".
+$formsUrl = 'http://localhost:9001/weblogic/ready'
+if (-not (Test-Up $formsUrl)) {
     Write-Host 'Starting WLS_FORMS...'
-    Start-Process -FilePath (Join-Path $bin 'startManagedWebLogic.cmd') -ArgumentList 'WLS_FORMS', 't3://localhost:7001' -WindowStyle Hidden `
-        -RedirectStandardOutput (Join-Path $logs 'WLS_FORMS.out') -RedirectStandardError (Join-Path $logs 'WLS_FORMS.err')
-    Wait-Url 'http://localhost:9001/forms/frmservlet' 'WLS_FORMS'
+    $out = Join-Path $logs 'WLS_FORMS.out'
+    Start-Process -FilePath (Join-Path $bin 'startManagedWebLogic.cmd') -ArgumentList 'WLS_FORMS', 't3://localhost:7001' `
+        -WorkingDirectory $DomainHome -WindowStyle Hidden `
+        -RedirectStandardOutput $out -RedirectStandardError (Join-Path $logs 'WLS_FORMS.err')
+    Wait-Up $formsUrl 'WLS_FORMS' $out
 }
 
 Write-Host 'Oracle Forms is serving on http://localhost:9001/forms/frmservlet'
