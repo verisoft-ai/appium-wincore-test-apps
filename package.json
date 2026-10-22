@@ -19,7 +19,8 @@
     "build:ownerdraw-gallery-test-app": "dotnet build ownerdraw-gallery/OwnerDrawGallery.csproj -c Debug -p:Platform=x64",
     "build:test-apps": "npm run build:winform-test-app && npm run build:wpf-datagrid-template-test-app && npm run build:java-swing-test-app && npm run build:java-swing-table-test-app",
     "build:all": "npm run build:winform-test-app && npm run build:net8-winforms-minimal-test-app && npm run build:net8-winforms-minimal-x86-test-app && npm run build:net8-wpf-minimal-test-app && npm run build:wpf-datagrid-template-test-app && npm run build:java-swing-test-app && npm run build:java-swing-table-test-app && npm run build:java-swing-large-test-app && npm run build:java-swing-controls-test-app && npm run build:winforms-large-test-app && npm run build:minimal-ownerdraw-winforms-test-app && npm run build:minimal-ownerdraw-x86-test-app && npm run build:ownerdraw-gallery-test-app && npm run build:msaa-legacy-controls-test-app",
-    "build:msaa-legacy-controls-test-app": "dotnet build msaa-legacy-controls/MsaaLegacyControls.csproj -c Debug -p:Platform=x64"
+    "build:msaa-legacy-controls-test-app": "dotnet build msaa-legacy-controls/MsaaLegacyControls.csproj -c Debug -p:Platform=x64",
+    "build:oracle-forms-test-app": "powershell -NoProfile -ExecutionPolicy Bypass -File oracle-forms/build.ps1"
   },
   "author": "verisoft-ai",
   "contributors": [
