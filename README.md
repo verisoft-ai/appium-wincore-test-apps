@@ -19,6 +19,10 @@ One fixture is not an app but a whole backend:
 
 - `sap/` — a Dockerised SAP NetWeaver AS ABAP 7.52 Developer Edition, the target for the driver's planned SAP GUI Scripting subsystem (`csharp/WincoreServer/Sap/`). SAP GUI's custom-drawn controls are invisible to UIA; the driver reaches them through SAP's COM scripting API instead, and that API is empty until a real SAP session exists. `sap/README.md` is the full runbook (image build from SAP's archives, licence, scripting switches, connect). ~6 GB RAM, ~80 GB disk.
 
+One fixture needs a local Oracle Forms install:
+
+- `oracle-forms/` — an Oracle Forms form with a customer-style Pluggable Java Component, the target for appium-wincore-java-bridge's Oracle Forms support. Oracle Forms draws with Oracle's own toolkit inside a Java client; the bridge reads its tree but its writes don't reach the Forms server yet. `oracle-forms/README.md` is the full runbook (JDK, Database Free, Forms 14.1.2 install, build, runner). ~16 GB RAM, ~40 GB disk.
+
 ## Prerequisites
 
 - .NET SDK (8.0+ for the `net8-*` fixtures, .NET Framework for the rest)
