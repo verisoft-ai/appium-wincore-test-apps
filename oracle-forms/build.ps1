@@ -101,11 +101,15 @@ Select-String $defaultEnv -Pattern '^(FORMS_PATH|FORMS_MODULE_PATH)=' -ErrorActi
 Write-Host "Deployed $deployedFmx"
 
 # -- 5. formsweb.cfg [wincore] section --------------------------------------------
+# width/height: the default 750x600 frame clips the canvas (933x720 px), and items below
+# the fold can't be clicked with the mouse.
 $section = @"
 [$ConfigName]
 form=wincore_fixture.fmx
 archive=frmall.jar,wincore-pjc.jar
 lookAndFeel=Generic
+width=1000
+height=900
 "@
 $cfg = Get-Content $formsweb -Raw
 $pattern = "(?ms)^\[$([regex]::Escape($ConfigName))\]\r?\n.*?(?=^\[|\z)"
