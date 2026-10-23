@@ -89,10 +89,21 @@ if (-not (Test-Path $keystore)) {
 if ($LASTEXITCODE -ne 0) { throw 'jarsigner failed' }
 Copy-Item $pjcJar (Join-Path $OracleHome 'forms\java\wincore-pjc.jar') -Force
 
-# -- 4. formsweb.cfg [wincore] section --------------------------------------------
+# -- 4. Deploy the .fmx -----------------------------------------------------------
+# The Forms runtime only opens modules found on FORMS_PATH / FORMS_MODULE_PATH; a form
+# outside them (like this build folder) fails with FRM-40010. ORACLE_HOME\forms is on the
+# default FORMS_PATH, so deploy there and reference the form by name.
+$deployedFmx = Join-Path $OracleHome 'forms\wincore_fixture.fmx'
+Copy-Item $fmx $deployedFmx -Force
+$defaultEnv = Join-Path (Split-Path $formsweb) 'default.env'
+Select-String $defaultEnv -Pattern '^(FORMS_PATH|FORMS_MODULE_PATH)=' -ErrorAction SilentlyContinue |
+    ForEach-Object { Write-Host "default.env: $($_.Line)" }
+Write-Host "Deployed $deployedFmx"
+
+# -- 5. formsweb.cfg [wincore] section --------------------------------------------
 $section = @"
 [$ConfigName]
-form=$fmx
+form=wincore_fixture.fmx
 archive=frmall.jar,wincore-pjc.jar
 lookAndFeel=Generic
 "@
