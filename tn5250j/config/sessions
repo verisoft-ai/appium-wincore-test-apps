@@ -1,0 +1,2 @@
+# tn5250j sessions: name=host + My5250 flags (-p port, -e enhanced, -t tab titled by session name)
+PUB400=pub400.com -p 23 -e -t

@@ -49,3 +49,7 @@ sap/.env
 # Source is checked in, build output/obj is not (built via build:msaa-legacy-controls-test-app)
 msaa-legacy-controls/bin/
 msaa-legacy-controls/obj/
+
+# tn5250j — jar is downloaded by fetch.ps1 (GPL-2.0, not committed); bin/settings is the
+# per-launch copy of config/ that tn5250j rewrites while running
+tn5250j/bin/
