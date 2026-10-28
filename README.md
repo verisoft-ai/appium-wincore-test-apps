@@ -23,6 +23,10 @@ One fixture needs a local Oracle Forms install:
 
 - `oracle-forms/` — an Oracle Forms form with a customer-style Pluggable Java Component, the target for appium-wincore-java-bridge's Oracle Forms support. Oracle Forms draws with Oracle's own toolkit inside a Java client; the bridge reads its tree but its writes don't reach the Forms server yet. `oracle-forms/README.md` is the full runbook (JDK, Database Free, Forms 14.1.2 install, build, runner). ~16 GB RAM, ~40 GB disk.
 
+One fixture is a terminal emulator on a remote host:
+
+- `tn5250j/` — the tn5250j 5250 emulator (Java Swing) connected to PUB400, a free public IBM i server, the target for the planned 5250 green-screen support. The screen is one custom-painted component, invisible to plain UIA tree walking. `tn5250j/README.md` covers fetch, launch, settings and the PUB400 account. Needs network access to `pub400.com:23`.
+
 ## Prerequisites
 
 - .NET SDK (8.0+ for the `net8-*` fixtures, .NET Framework for the rest)
