@@ -10,6 +10,11 @@
 .PARAMETER Wait
   Block until tn5250j exits instead of returning once it has started.
 
+.PARAMETER ReaderAgent
+  Path to the appium-pcomm-plugin reader agent jar (native\tn5250j-reader\build\tn5250j-reader.jar).
+  Loaded with -javaagent so the plugin's tn5250j backend can read the screen; it listens on
+  loopback only and writes its port to %TEMP%\pcomm-tn5250j-<pid>.port.
+
 .NOTES
   tn5250j rewrites its settings directory as it runs (window position, last session), so
   config\ is copied fresh into bin\settings on every launch: the committed files stay clean
@@ -22,7 +27,8 @@
 #>
 param(
     [string]$Session = 'PUB400',
-    [switch]$Wait
+    [switch]$Wait,
+    [string]$ReaderAgent
 )
 
 $ErrorActionPreference = 'Stop'
@@ -38,7 +44,12 @@ New-Item -ItemType Directory -Force $settings | Out-Null
 Copy-Item (Join-Path $PSScriptRoot 'config\*') $settings -Force
 
 $java = if ($env:JAVA_HOME) { Join-Path $env:JAVA_HOME 'bin\javaw.exe' } else { 'javaw.exe' }
-$javaArgs = @("-Demulator.settingsDirectory=`"$settings`"", '-jar', "`"$($jar.FullName)`"",
+$javaArgs = @()
+if ($ReaderAgent) {
+    $agent = (Resolve-Path $ReaderAgent).Path
+    $javaArgs += "-javaagent:`"$agent`""
+}
+$javaArgs += @("-Demulator.settingsDirectory=`"$settings`"", '-jar', "`"$($jar.FullName)`"",
     '-s', $Session, '-nc')
 
 Write-Host "$java $($javaArgs -join ' ')"
